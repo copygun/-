@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<title>견적요청서 (Label Printing RFQ)</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+    body { font-family:'Malgun Gothic',sans-serif; font-size:13px; margin:0; padding:8px; background:#f5f5f5;}
+    .container { max-width:1280px; margin:0 auto; background:#fff; box-shadow:0 0 6px rgba(0,0,0,0.1); border-radius:6px; overflow:hidden;}
+    .header { background:#2c3e50; color:#fff; padding:12px; text-align:center;}
+    .header h1 { margin:0; font-size:20px;}
+    .document-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px; padding:8px 16px; background:#ecf0f1; border-bottom:1px solid #34495e;}
+    .document-info label { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+    .document-info input { width:100%; padding:4px; font-size:13px; box-sizing:border-box;}
+    .content { padding:8px 16px 16px;}
+    .section { margin-bottom:12px; border:1px solid #e0e0e0; border-radius:4px; overflow:hidden;}
+    .section-header { background:#34495e; color:#fff; padding:6px 12px; font-weight:bold; font-size:14px;}
+    .section-content { padding:8px 12px;}
+    .form-group { display:flex; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
+    .form-group label { width:120px; font-weight:600; color:#2c3e50; font-size:13px; flex-shrink: 0; }
+    .form-group input, .form-group textarea, .form-group select { flex:1; padding:4px; font-size:13px; border:1px solid #ccc; border-radius:4px; min-width: 0; }
+    
+    .input-other-text-field { 
+        flex:1 !important; 
+        max-width: 350px; 
+    }
+    #paymentOtherMethodText, #paymentOtherTermText {
+         width: 260px !important; 
+         flex-grow: 0 !important; 
+         min-width: 260px !important;
+         margin-left: 5px; 
+    }
+
+    .unit-input { display:flex; align-items:center; flex: 1; }
+    .unit-input input { flex:1; } 
+    .unit-label { margin-left:4px; font-size:13px; white-space: nowrap;}
+    .checkbox-group, .radio-group { display:inline-flex; align-items:center; margin-right:12px; font-size:13px; white-space:nowrap;}
+    .checkbox-group input, .radio-group input { margin-right:4px;} 
+    .two-column { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px;}
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+    .download-buttons { position:fixed; top:10px; right:10px; display:flex; gap:6px; z-index:1000;}
+    .download-btn { padding:6px 12px; background:#3498db; color:#fff; border:none; border-radius:4px; font-size:13px; cursor:pointer;}
+    .download-btn:hover { background:#2980b9;}
+    .footer { background:#f8f9fa; text-align:left; font-size:12px; color:#888; padding:10px; border-radius:0 0 6px 6px;}
+    
+    .layer-spec select, .layer-spec input[type="text"] { margin-top: 2px; margin-bottom: 2px; }
+    .pantone-input-group label { width: auto !important; font-weight:normal; margin-right: 5px;}
+    .installment-group label {width: auto !important; font-weight: normal; margin-right: 3px; margin-left: 8px;}
+    .installment-group label:first-child { margin-left: 0px; width: 120px !important; font-weight:600;}
+    .installment-group input[type="date"] { flex-grow: 0.5; max-width:150px; margin-right:5px;}
+    .installment-group input[type="text"], .installment-group input[type="number"] { 
+        flex-grow: 0.3; 
+        text-align: right;
+    }
+    /* 새로 추가된 분할 납기별 배송 정보 */
+    .partial-delivery-info .form-group {
+        margin-left: 20px; /* 기존 납기일/수량과의 들여쓰기 */
+        padding-top: 5px;
+        border-top: 1px dashed #eee;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        flex-wrap: wrap; /* 내부 요소들을 감쌀 수 있도록 */
+    }
+    .partial-delivery-info .form-group label {
+        width: 100px; /* 납품처 주소 등의 라벨 너비 조정 */
+        font-weight: normal;
+        margin-bottom: 0;
+    }
+    .partial-delivery-info .form-group .inline-checkbox-group {
+        flex: 1; /* 남은 공간을 채우도록 */
+        gap: 0 10px; /* 체크박스 간격 */
+    }
+    .partial-delivery-info .form-group .input-other-text-field {
+        margin-left: 5px; /* 기타 입력란 왼쪽 마진 */
+    }
+
+
+    #packagingUnitQty { 
+        flex-grow: 0 !important;
+        width: 240px !important; 
+        min-width: 240px; 
+        max-width: 240px;
+    }
+    #singleDeliveryDisplay .unit-input { 
+        flex-grow: 0 !important; 
+        max-width: 200px; 
+    }
+    #singleDeliveryDueDate { 
+        flex: 1; 
+        max-width: 220px; 
+        min-width:150px;
+    }
+     #singleDeliveryDisplay input[type="text"] { 
+        background-color: #f0f0f0; 
+    }
+    #partialDeliverySummary .form-group label, 
+    #sheetSpecificOptions .form-group label,
+    #rollSpecificCalculations .form-group label { 
+        font-weight: normal; width: auto !important; margin-right: 5px;
+    }
+    #rollSpecificCalculations .form-group label:first-child, 
+    #sheetSpecificOptions .form-group label:first-child { 
+         width: 120px !important; 
+         font-weight: 600;
+    }
+
+    #partialDeliverySummary .form-group label.summary-main-label { font-weight: bold; width:120px !important;} 
+    #partialDeliverySummary span, 
+    #sheetSpecificOptions span, 
+    #rollSpecificCalculations span { 
+        margin-right: 5px; display: inline-block; min-width: 50px; text-align: right; font-weight: bold;
+    }
+    #sheetSpecificOptions .unit-input, #rollSpecificCalculations .unit-input {flex-grow:0; max-width:200px;} 
+    #sheetSpecificOptions .unit-input input {max-width: 100px;} 
+    .highlight-actual-delivery { background-color: #e6f7ff; padding: 8px; border-radius: 4px; margin-top:10px; }
+    .highlight-actual-delivery > label { 
+        color: #007bff; font-weight:bold !important; width: 100% !important; margin-bottom: 5px; display: block;
+    }
+     .highlight-actual-delivery .unit-input { margin-left: 0; }
+    .highlight-actual-delivery .form-group label {width: 150px !important; font-weight: bold !important; color: #007bff !important;}
+
+    #tieredPricingOptions .form-group label { width: auto !important; margin-right: 5px; font-weight:normal; }
+    #tieredPricingOptions .form-group input[type="text"] { width: 100px; text-align: right; flex-grow:0.3;}
+
+    /* 색차 기준 전용 스타일 */
+    .color-difference-criteria-container { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; /* 세로 정렬 유지 */
+        gap: 5px; 
+    }
+    .color-difference-item-row { 
+        display: flex; 
+        align-items: center; 
+        margin-bottom: 0; 
+        flex-wrap: wrap; /* 작은 화면에서 줄바꿈 허용 */
+        /* gap: 4px; <- 이 속성은 필요 없거나 내부 span에 적용 */
+    }
+    .color-difference-item-row input[type="checkbox"] {
+        margin-right: 8px; /* 체크박스와 텍스트 간격 조정 */
+        flex-shrink: 0;
+    }
+    .color-difference-item-row .color-diff-label-text { /* ΔE*ab ≤, ΔE00 ≤ 텍스트 */
+        font-weight: normal; 
+        white-space: nowrap; /* 줄바꿈 방지 */
+        margin-right: 4px; /* 텍스트와 입력칸 사이 간격 */
+    }
+    .color-difference-item-row .color-diff-input-final { /* 숫자 입력칸 */
+        width: 60px; 
+        padding: 4px;
+        font-size: 13px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px; /* 이미지를 참고하여 radius 조정 */
+        flex-grow: 0; /* 자동 너비 증가 방지 */
+        min-width: 60px; /* 최소 너비 보장 */
+        margin-left: 0; /* 기존 margin-left 제거 */
+    }
+    .color-difference-item-row .description-text-final { /* (ISO...) 설명 */
+        font-size: 12px;
+        color: #555;
+        white-space: nowrap; /* 설명 문구가 길어도 한 줄로 표시 */
+        margin-left: 4px; /* 입력칸과의 간격 */
+    }
+
+    /* 특정 체크박스 그룹들을 한 줄에 정렬하기 위한 스타일 */
+    .inline-checkbox-group {
+        display: flex; /* flexbox 사용 */
+        flex-wrap: wrap; /* 내용이 길어지면 다음 줄로 넘어가도록 설정 */
+        align-items: center;
+        gap: 0 12px; /* 체크박스 그룹들 사이의 가로 간격 */
+        flex: 1; /* 부모 flex-group 내에서 공간을 채우도록 */
+    }
+
+
+    @media (max-width:800px) {
+      .form-group { flex-direction:column; align-items:flex-start; }
+      .form-group label { 
+          width:100%; 
+          margin-bottom:4px; 
+      }
+      .installment-group label, .installment-group label:first-child {width: 100% !important; margin-left:0; margin-right: 0;}
+      #packagingUnitQty { width: 100% !important; max-width: none; min-width: 0;}
+      #singleDeliveryDisplay .unit-input, #singleDeliveryDisplay input[type="date"],
+      #singleDeliveryDueDate { 
+            width: 100% !important; max-width: none; flex-grow: 1 !important;
+      }
+      #partialDeliverySummary .form-group, 
+      #sheetSpecificOptions .form-group,
+      #rollSpecificCalculations .form-group,
+      .color-difference-item-row { 
+        flex-direction: row;  
+        align-items: center;
+      }
+       /* .color-difference-item-row > label { 
+          flex-wrap: wrap; 
+      } */
+      .color-difference-item-row .description-text-final { white-space: normal; }
+
+
+      #partialDeliverySummary label, 
+      #sheetSpecificOptions .form-group label,
+      #rollSpecificCalculations .form-group label,
+      #rollSpecificCalculations .form-group label:first-child,
+      #sheetSpecificOptions .form-group label:first-child { width: auto !important; margin-bottom:0; }
+      
+      #sheetSpecificOptions .unit-input, #rollSpecificCalculations .unit-input {flex-basis: auto; max-width:none; flex-grow:0.5;}
+      .highlight-actual-delivery .unit-input { margin-left: 0px; }
+      .highlight-actual-delivery .form-group label {width: auto !important;}
+      #tieredPricingOptions .form-group { flex-direction: row; }
+      #tieredPricingOptions .form-group label { width: auto !important; margin-bottom: 0;}
+
+      .inline-checkbox-group {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 5px 0;
+      }
+      .grid2 { grid-template-columns:1fr; }
+
+      /* 분할납기 시 추가된 배송정보 필드 반응형 */
+      .partial-delivery-info .form-group {
+          flex-direction: column;
+          align-items: flex-start;
+          margin-left: 0;
+      }
+      .partial-delivery-info .form-group label {
+          width: 100%;
+          margin-bottom: 4px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+<div class="download-buttons">
+<button class="download-btn" onclick="downloadImage()">이미지</button>
+</div>
+<div class="container" id="rfq-form">
+<div class="header"><h1>견적요청서 (Label Printing RFQ)</h1></div>
+<div class="document-info">
+<div>
+<label>문서번호</label>
+<input readonly="" type="text" value="LBL-RFQ-2025-001"/>
+</div>
+<div>
+<label>견적요청일</label>
+<input type="date" id="rfqDate"/>
+</div>
+<div>
+<label>견적제출 요청일</label>
+<input type="date" id="submissionDueDate"/>
+</div>
+</div>
+<div class="content">
+<div class="two-column">
+<div class="section">
+<div class="section-header">1. 요청업체 정보</div>
+<div class="section-content">
+<div class="form-group"><label>회사명</label><input type="text" value="주식회사 원라벨"/></div>
+<div class="form-group"><label>담당자</label><input type="text" value="최은영 팀장/영업지원"/></div>
+<div class="form-group"><label>연락처</label><input type="tel" value="010-7126-1683"/></div>
+<div class="form-group"><label>이메일</label><input type="email" value="wonlabel2022@gmail.com, gun@wonlabel.co.kr"/></div>
+<div class="form-group"><label>주소</label><input type="text" value="경기도 부천시 소사구 양지로229(옥길동, 골든IT타워) 328호"/></div>
+<div class="form-group"><label>사업자번호</label><input type="text" value="655-81-02812"/></div>
+</div>
+</div>
+<div class="section">
+<div class="section-header">2. 공급업체 정보</div>
+<div class="section-content">
+<div class="form-group"><label>회사명</label><input type="text"/></div>
+<div class="form-group"><label>담당자</label><input type="text"/></div>
+<div class="form-group"><label>연락처</label><input type="text"/></div>
+<div class="form-group"><label>이메일</label><input type="email"/></div>
+<div class="form-group"><label>주소</label><input type="text"/></div>
+<div class="form-group"><label>사업자번호</label><input type="text"/></div>
+</div>
+</div>
+</div>
+<div class="grid2">
+<div class="section">
+<div class="section-header">3. 라벨 기본 사양</div>
+<div class="section-content">
+<div class="form-group" style="flex-wrap:nowrap;"><label>라벨 종류</label>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="제품"/> 제품</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="표기(덧방)"/> 표기(덧방)</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="바코드"/> 바코드</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="용기 리드씰"/> 용기 리드씰</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="개봉방지"/> 개봉방지</span>
+</div>
+<div class="form-group" id="s3_label_other_group_main">
+    <label></label> 
+    <span class="checkbox-group">
+        <input type="checkbox" id="s3_label_other_chk" data-summary-label="기타 라벨 종류"/> <label for="s3_label_other_chk">기타</label>
+    </span>
+</div>
+<div class="form-group" id="s3_label_other_txt_group" style="display:none;">
+    <label>&nbsp;</label>
+    <input type="text" id="s3_label_other_txt" placeholder="기타 라벨 종류 입력" class="input-other-text-field"/>
+</div>
+<div class="form-group"><label>품목명/품번</label><input type="text" id="item_name"/></div>
+<div class="form-group"><label>사용 용도</label><input type="text" id="usage_purpose"/></div>
+<div class="form-group"><label>피착면</label><input type="text" id="adhesion_surface"/></div>
+<div class="form-group">
+<label>사용 환경</label>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="실내"/> 실내</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="실외"/> 실외</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="냉동/냉장"/> 냉동/냉장</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="고온"/> 고온</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="습도"/> 습도</span>
+</div>
+<div class="form-group"><label>크기</label>
+    <div class="unit-input"><input placeholder="가로" type="text" id="size_width"/><span class="unit-label">mm</span></div>
+    <span style="margin: 0 5px; display:inline-flex; align-items:center;">&times;</span>
+    <div class="unit-input"><input placeholder="세로" type="text" id="size_height"/><span class="unit-label">mm</span></div>
+</div>
+<div class="form-group">
+<label>풀림방향</label>
+<span class="radio-group"><input name="dir" type="radio" value="상"/> 상</span>
+<span class="radio-group"><input name="dir" type="radio" value="하"/> 하</span>
+<span class="radio-group"><input name="dir" type="radio" value="좌"/> 좌</span>
+<span class="radio-group"><input name="dir" type="radio" value="우"/> 우</span>
+</div>
+<div class="form-group">
+<label>형태</label>
+<span class="radio-group"><input name="shape" type="radio" value="사각형"/> 사각형</span>
+<span class="radio-group"><input name="shape" type="radio" value="원형"/> 원형</span>
+<span class="radio-group"><input name="shape" type="radio" value="타원형"/> 타원형</span>
+<span class="radio-group"><input name="shape" type="radio" value="특수형태"/> 특수형태</span>
+</div>
+<div class="form-group"><label>총 발주수량</label><div class="unit-input"><input type="text" id="totalOrderQuantity" inputmode="numeric" style="text-align:right;"/><span class="unit-label">매</span></div></div>
+</div>
+</div>
+<div class="section">
+<div class="section-header">4. 소재 및 재질 사양</div>
+<div class="section-content">
+<div class="form-group">
+    <label>표면재 층수</label>
+    <select id="surfaceLayerCount" name="surfaceLayerCount" style="flex-grow:0.3;"> 
+        <option value="1" selected>1층</option>
+        <option value="2">2층</option>
+        <option value="3">3층</option>
+        <option value="4">4층</option>
+        <option value="5">5층</option>
+        <option value="6">6층</option>
+        <option value="7">7층</option>
+        <option value="8">8층</option>
+        <option value="9">9층</option>
+    </select>
+</div>
+<div id="surfaceLayerDetailsContainer">
+</div>
+<div class="form-group"><label>두께</label>
+<div class="unit-input"><input type="text" id="material_thickness"/><span class="unit-label">㎛</span></div>
+</div>
+<div class="form-group"><label>색상</label>
+<span class="radio-group"><input name="color" type="radio" value="백색"/> 백색</span>
+<span class="radio-group"><input name="color" type="radio" value="투명"/> 투명</span>
+<span class="radio-group"><input name="color" type="radio" value="은색"/> 은색</span>
+<span class="radio-group"><input name="color" type="radio" value="기타" id="colorOtherRadio"/> 기타</span>
+</div>
+<div class="form-group" id="materialColorOtherTxtGroup" style="display:none;">
+    <label>&nbsp;</label>
+    <input type="text" id="materialColorOtherText" placeholder="기타 색상 직접 입력" class="input-other-text-field"/>
+</div>
+<div class="form-group"><label>점착제</label>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="영구접착"/> 영구접착</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="리무버블"/> 리무버블</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="강점착"/> 강점착</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="냉동용"/> 냉동용</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="고온용"/> 고온용</span>
+</div>
+<div class="form-group"><label>이형지</label>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="글라신(Glassine B/W)"/> 글라신(Glassine B/W)</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="황지(YP)"/> 황지(YP)</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="PET"/> PET</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="PP코팅"/> PP코팅</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="PE코팅"/> PE코팅</span>
+</div>
+<div class="form-group" id="s4_liner_other_group_main">
+    <label></label> 
+    <span class="checkbox-group">
+        <input type="checkbox" id="s4_liner_other_chk" data-summary-label="기타 이형지"/> <label for="s4_liner_other_chk">기타</label>
+    </span>
+</div>
+<div class="form-group" id="s4_liner_other_txt_group" style="display:none;">
+    <label>&nbsp;</label>
+    <input type="text" id="s4_liner_other_txt" placeholder="기타 이형지 직접 입력" class="input-other-text-field"/>
+</div>
+</div>
+</div>
+</div>
+<div class="grid2">
+<div class="section">
+<div class="section-header">5. 인쇄 사양</div>
+<div class="section-content">
+<div class="form-group">
+    <label>인쇄 방식</label>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="레터프레스"/> 레터프레스</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="오프셋"/> 오프셋</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="실크스크린"/> 실크스크린</span>
+    <span class="checkbox-group"><input type="checkbox" data-summary-label="디지털"/> 디지털</span>
+</div>
+<div class="form-group" id="s5_print_other_group_main">
+    <label></label> 
+    <span class="checkbox-group">
+        <input type="checkbox" id="s5_print_other_chk" data-summary-label="기타 인쇄 방식"/> <label for="s5_print_other_chk">기타</label>
+    </span>
+</div>
+<div class="form-group" id="s5_print_other_txt_group" style="display:none;">
+    <label>&nbsp;</label>
+    <input type="text" id="s5_print_other_txt" placeholder="기타 인쇄 방식 직접 입력" class="input-other-text-field"/>
+</div>
+<div class="form-group"><label>인쇄 색수</label> 
+    <span class="checkbox-group"><input id="cmykCheck" type="checkbox" data-summary-label="CMYK"/> CMYK</span>
+    <span class="checkbox-group"><input id="spotCheck" type="checkbox" data-summary-label="별색"/> 별색</span>
+    <select id="spotCount" style="padding:4px; font-size:13px; display:none; flex-grow: 0.2; margin-left: 5px;">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+    </select>
+    <span class="checkbox-group" style="margin-left: 10px;"><input type="checkbox" id="iMarkCheck" data-summary-label="I마크"/> I마크</span>
+    <span class="checkbox-group" style="margin-left: 10px;">
+        <input type="checkbox" id="printColorOtherChk" data-summary-label="기타 인쇄 색수"/> <label for="printColorOtherChk">기타</label>
+    </span>
+</div>
+<div class="form-group" id="printColorOtherTxtGroup" style="display:none;">
+    <label>&nbsp;</label>
+    <input type="text" id="printColorOtherTxt" placeholder="기타 인쇄 색수 직접 입력" class="input-other-text-field"/>
+</div>
+<div id="pantoneContainer" style="padding-left: 0px;"> 
+</div>
+<div class="form-group">
+    <label>특수 인쇄</label>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 0px;"> 
+        <div style="margin-bottom: 3px;"> 
+            <span class="checkbox-group" style="margin-right:0;"> 
+                <input type="checkbox" id="hotFoil" data-summary-label="열박(HOT-FOIL)"/> <label for="hotFoil">열박(HOT-FOIL)</label>
+            </span>
+            <div class="form-group" id="hotFoilDetailsGroup" style="display:none; margin-left: 20px; margin-top:3px; margin-bottom:0;"> 
+                <input type="text" id="hotFoilInput" placeholder="열박 제조사/제품번호" class="input-other-text-field" style="width:100%; max-width:300px; margin-left:0;"/>
+            </div>
+        </div>
+        <div> 
+            <span class="checkbox-group" style="margin-right:0;">
+                <input type="checkbox" id="coldFoil" data-summary-label="콜드박(COLD-FOIL)"/> <label for="coldFoil">콜드박(COLD-FOIL)</label>
+            </span>
+            <div class="form-group" id="coldFoilDetailsGroup" style="display:none; margin-left: 20px; margin-top:3px; margin-bottom:0;">
+                <input type="text" id="coldFoilInput" placeholder="콜드박 제조사/제품번호" class="input-other-text-field" style="width:100%; max-width:300px; margin-left:0;"/>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="section-header">6. 가공 및 후처리</div>
+<div class="section-content">
+<div class="form-group" style=""><label>UV코팅(Coating)</label>
+<span class="checkbox-group"><input id="uvGloss" type="checkbox" data-summary-label="유광 UV코팅"/> 유광 UV코팅</span>
+<span class="checkbox-group"><input id="uvMatte" type="checkbox" data-summary-label="무광 UV코팅"/> 무광 UV코팅</span>
+</div>
+<div class="form-group" style="padding-left: 140px; display: none;">
+<label></label>
+<span class="radio-group"><input disabled="" id="uvMatteTypeNormal" name="uvMatteOpt" type="radio"/> 일반</span>
+<span class="radio-group"><input disabled="" id="uvMatteTypeRibbon" name="uvMatteOpt" type="radio"/> 리본착인용</span>
+</div>
+<div class="form-group" style="padding-left: 140px; display: none;">
+<label></label>
+<span class="radio-group"><input disabled="" id="uvGlossTypeNormal" name="uvGlossOpt" type="radio"/> 일반</span>
+<span class="radio-group"><input disabled="" id="uvGlossTypeRibbon" name="uvGlossOpt" type="radio"/> 리본착인용</span>
+</div>
+<div class="form-group"><label>라미네이팅</label>
+<span class="checkbox-group"><input id="laminateGloss" type="checkbox" data-summary-label="유광 라미네이팅"/> 유광 라미네이팅</span>
+<span class="checkbox-group"><input id="laminateMatte" type="checkbox" data-summary-label="무광 라미네이팅"/> 무광 라미네이팅</span>
+<span class="checkbox-group"><input type="checkbox" data-summary-label="풀라미"/> 풀라미</span>
+</div>
+<div class="form-group" style="padding-left: 140px; display: none;">
+<label></label>
+<span class="radio-group"><input disabled="" id="lamMatteTypeNormal" name="lamMatteOpt" type="radio"/> 일반</span>
+<span class="radio-group"><input disabled="" id="lamMatteTypeRibbon" name="lamMatteOpt" type="radio"/> 리본착인용</span>
+</div>
+<div class="form-group" style="padding-left: 140px; display: none;">
+<label></label>
+<span class="radio-group"><input disabled="" id="lamGlossTypeNormal" name="lamGlossOpt" type="radio"/> 일반</span>
+<span class="radio-group"><input disabled="" id="lamGlossTypeRibbon" name="lamGlossOpt" type="radio"/> 리본착인용</span>
+</div>
+<div class="form-group"><label>기타 가공</label><input type="text" id="other_processing"/></div>
+<div class="form-group"><label>다이커팅</label>
+<span class="radio-group"><input checked="" id="halfCut" name="dieCut" type="radio" value="하프컷"/> 하프컷</span>
+<span class="radio-group"><input id="fullCut" name="dieCut" type="radio" value="풀컷"/> 풀컷</span>
+</div>
+<div class="form-group"><label>커팅 정밀도</label><input type="text" id="cutting_precision"/> mm</div>
+</div>
+</div>
+</div>
+<div class="grid2">
+<div class="section">
+<div class="section-header">7. 포장조건</div> 
+<div class="section-content">
+    <div class="form-group">
+        <label>제작형태</label> 
+        <span class="radio-group"><input type="radio" name="packaging_method" value="roll" id="pack_roll_radio" checked/> 롤</span>
+        <span class="radio-group"><input type="radio" name="packaging_method" value="sheet" id="pack_sheet_radio"/> 시트</span>
+        <span class="radio-group"><input class="other-toggle" type="radio" name="packaging_method" value="other" id="pack_other_radio"/> 기타<input disabled="" placeholder="직접 입력" type="text" id="pack_other_text"/></span>
+    </div>
+    <div id="sheetSpecificOptions" style="display:none; width:100%; padding-left:0px;">
+        <div class="form-group">
+            <label>시트당 라벨</label> 
+            <div class="unit-input">
+                 <input type="number" id="labelsPerSheet" min="1" style="text-align:right;"/>
+                 <span class="unit-label">매/장</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>묶음당 시트</label> 
+            <div class="unit-input">
+                 <input type="number" id="sheetsPerBundle" min="1" style="text-align:right;"/>
+                 <span class="unit-label">장/묶음</span>
+            </div>
+        </div>
+        <hr style="margin: 8px 0; width:100%; border-color: #eee; border-style: dashed;">
+        <div class="form-group">
+            <label>총 필요 시트 수</label>
+            <div class="unit-input"> 
+                <span id="totalSheetsNeededDisp">0</span>
+                <span class="unit-label">장</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>마지막 시트 라벨 수</label>
+            <div class="unit-input">
+                <span id="labelsOnLastSheetDisp">0</span>
+                <span class="unit-label">매</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>총 묶음 수</label>
+            <div class="unit-input"> 
+                <span id="totalBundlesDisp">0</span>
+                <span class="unit-label">묶음</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>부분 묶음 시트 수</label> 
+            <div class="unit-input">
+                <span id="leftoverSheetsForBundleDisp">0</span>
+                <span class="unit-label">장</span>
+            </div>
+        </div>
+        <div class="form-group highlight-actual-delivery">
+            <label>총 실제 납품 예상 수량 (시트)</label>
+            <div class="unit-input">
+                <span id="actualDeliveryQtyForSheets">0</span>
+                <span class="unit-label">매</span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group" id="packagingUnitFormGroup">
+        <label id="packagingUnitLabel">포장 단위</label>
+        <div class="unit-input">
+            <input type="text" id="packagingUnitQty" inputmode="numeric"/>
+            <span class="unit-label" id="packagingUnitQtyLabelSuffix">EA</span>
+        </div>
+    </div>
+     <div id="rollSpecificCalculations" style="display:none; width:100%; padding-left:0px;">
+        <hr style="margin: 8px 0; width:100%; border-color: #eee; border-style: dashed;">
+        <div class="form-group">
+            <label>총 필요한 롤 수</label>
+            <div class="unit-input"> 
+                <span id="totalPhysicalRollsDisp">0</span>
+                <span class="unit-label">롤</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>마지막 롤 라벨 수</label>
+            <div class="unit-input">
+                <span id="labelsOnLastRollDisp">0</span>
+                <span class="unit-label">매</span>
+            </div>
+        </div>
+        <div class="form-group highlight-actual-delivery">
+            <label>총 실제 납품 예상 수량 (롤)</label>
+             <div class="unit-input">
+                <span id="actualDeliveryQtyForRolls">0</span>
+                <span class="unit-label">매</span>
+            </div>
+        </div>
+         <div class="form-group" style="margin-top:10px;">
+            <label style="font-size:11px; color: #6c757d; width:100% !important; text-align:left; white-space:normal; line-height:1.3;">참고: 실제 납품 수량은 생산 단위(롤당 매수, 시트당 라벨 매수)에 따라 총 발주수량보다 많을 수 있습니다.</label>
+        </div>
+    </div>
+    <div class="form-group" id="labelingInfoGroup" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+        <label style="width: auto; font-weight: bold;">라벨링 정보(롤 코어 필수 표기사항)</label>
+        <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px 12px; margin-left: 10px;">
+            <span class="checkbox-group"><input type="checkbox"/> 프로젝트번호</span>
+            <span class="checkbox-group"><input type="checkbox"/> 제품명</span>
+            <span class="checkbox-group"><input type="checkbox"/> 제품코드</span>
+            <span class="checkbox-group"><input type="checkbox"/> 자재코드</span>
+            <span class="checkbox-group"><input type="checkbox"/> 수량</span>
+            <span class="checkbox-group"><input type="checkbox"/> 제조일자</span>
+            <span class="checkbox-group">
+                <input type="checkbox" id="labelingOtherChk"/> <label for="labelingOtherChk">기타</label>
+            </span>
+        </div>
+    </div>
+    <div class="form-group" id="labelingOtherTxtGroup" style="display:none;">
+        <label>&nbsp;</label> 
+        <input type="text" id="labelingOtherText" placeholder="기타 표기사항 직접 입력" class="input-other-text-field"/>
+    </div>
+
+    <div class="form-group" id="requiredDocumentsDisplay" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; display: none;">
+        <label style="width: auto; font-weight: bold; color: #007bff;">배송 시 필수서류</label>
+        <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px 12px; margin-left: 10px;">
+            <span id="docList"></span>
+        </div>
+    </div>
+
+</div>
+</div>
+<div class="section"> 
+<div class="section-header">8. 품질 기준 및 검사</div>
+<div class="section-content">
+<div class="form-group"><label>인쇄 품질</label>
+    <span class="checkbox-group"><input type="checkbox" id="qual_normal" class="qual-check"/> 일반</span>
+    <span class="checkbox-group"><input type="checkbox" id="qual_high" class="qual-check"/> 고급</span>
+    <span class="checkbox-group"><input type="checkbox" id="qual_premium" class="qual-check"/> 최고급</span>
+</div>
+<div class="form-group"><label>품질인증서</label>
+<span class="radio-group"><input name="cert" type="radio" id="cert_needed" onchange="updateRequiredDocuments()"/><label for="cert_needed">필요</label></span>
+<span class="radio-group"><input name="cert" type="radio" id="cert_not_needed" onchange="updateRequiredDocuments()"/><label for="cert_not_needed">불필요</label></span>
+</div>
+<div class="form-group"><label>검사성적서</label>
+<span class="radio-group"><input name="test_report" type="radio" id="test_report_needed" onchange="updateRequiredDocuments()"/><label for="test_report_needed">필요</label></span>
+<span class="radio-group"><input name="test_report" type="radio" id="test_report_not_needed" onchange="updateRequiredDocuments()"/><label for="test_report_not_needed">불필요</label></span>
+</div>
+<div class="form-group">
+    <label>원자재 관련 자료</label>
+    <div class="inline-checkbox-group">
+        <span class="checkbox-group"><input type="checkbox" id="rawMaterialMSDS" onchange="updateRequiredDocuments()"/> MSDS</span>
+        <span class="checkbox-group"><input type="checkbox" id="rawMaterialTDS" onchange="updateRequiredDocuments()"/> TDS</span>
+        <span class="checkbox-group">
+            <input type="checkbox" id="rawMaterialOtherChk" onchange="updateRequiredDocuments()"/> <label for="rawMaterialOtherChk">기타</label>
+        </span>
+    </div>
+</div>
+<div class="form-group" id="rawMaterialOtherTxtGroup" style="display:none;">
+    <label>&nbsp;</label>
+    <input type="text" id="rawMaterialOtherText" placeholder="기타 원자재 관련 자료 입력" class="input-other-text-field" oninput="updateRequiredDocuments()"/>
+</div>
+<div class="form-group">
+    <label>기타 품질요구사항</label>
+    <input type="text" id="otherQualityRequirements" placeholder="내용 입력" oninput="updateRequiredDocuments()"/>
+</div>
+<div class="form-group">
+    <label>검사 항목</label>
+    <div class="inline-checkbox-group">
+        <span class="checkbox-group"><input type="checkbox" id="insp_visual"/><label for="insp_visual">육안검사</label></span>
+        <span class="checkbox-group"><input type="checkbox" id="insp_color"/><label for="insp_color">색상검사</label></span>
+        <span class="checkbox-group"><input type="checkbox" id="insp_peel"/><label for="insp_peel">박리시험</label></span>
+        <span class="checkbox-group">
+            <input type="checkbox" id="insp_other_chk"/> <label for="insp_other_chk">기타</label>
+        </span>
+    </div>
+</div>
+<div class="form-group" id="insp_other_txt_group" style="display:none;">
+    <label>&nbsp;</label> 
+    <input type="text" id="insp_other_txt" placeholder="기타 검사항목 입력" class="input-other-text-field"/>
+</div>
+<div class="form-group"> 
+    <label>색차 기준</label> 
+    <div class="color-difference-criteria-container"> 
+        <div class="color-difference-item-row"> 
+            <input type="checkbox" id="deltaE_ab_check_final" onchange="updateRequiredDocuments()"/>
+            <span class="color-diff-label-text">ΔE*ab ≤</span>
+            <input type="number" value="2.0" step="0.1" id="deltaE_ab_value_final" class="color-diff-input-final" oninput="updateRequiredDocuments()"/>
+            <span class="description-text-final">(ISO 12647-2 권장 기준)</span>
+        </div>
+        <div class="color-difference-item-row">
+            <input type="checkbox" id="deltaE_00_check_final" onchange="updateRequiredDocuments()"/>
+            <span class="color-diff-label-text">ΔE00 ≤</span>
+            <input type="number" value="2.0" step="0.1" id="deltaE_00_value_final" class="color-diff-input-final" oninput="updateRequiredDocuments()"/>
+            <span class="description-text-final">(CIE ΔE2000 권장 기준)</span>
+        </div>
+    </div>
+</div> 
+</div>
+</div> 
+</div>
+<div class="grid2">
+<div class="section">
+<div class="section-header">9. 납기 및 수량 조건</div>
+<div class="section-content">
+    <div class="form-group">
+        <label>납기 방식</label>
+        <span class="radio-group"><input type="radio" name="deliveryType" value="single" id="deliveryTypeSingle" checked/> 일괄납기</span>
+        <span class="radio-group"><input type="radio" name="deliveryType" value="partial" id="deliveryTypePartial"/> 분할납기</span>
+    </div>
+
+    <div id="singleDeliveryDisplay"> 
+        <div class="form-group">
+            <label>총 수량 (일괄)</label>
+            <div class="unit-input"> 
+                <input type="text" id="singleDeliveryTotalQty" readonly style="text-align:right;"/>
+                <span class="unit-label">매</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>요청 납기일 (일괄)</label>
+            <input type="date" id="singleDeliveryDueDate"/> 
+        </div>
+        <div class="form-group"><label>납품처 주소</label><input type="text" id="singleDeliveryAddress"/></div>
+        <div class="form-group"><label>입고담당자</label><input type="text" id="singleDeliveryContactPerson"/></div>
+        <div class="form-group"><label>연락처</label><input type="tel" id="singleDeliveryPhone"/></div>
+        <div class="form-group">
+            <label>배송방법</label>
+            <div class="inline-checkbox-group">
+                <span class="checkbox-group"><input type="checkbox" name="singleDeliveryMethod" value="택배"/> 택배</span>
+                <span class="checkbox-group"><input type="checkbox" name="singleDeliveryMethod" value="화물"/> 화물</span>
+                <span class="checkbox-group"><input type="checkbox" name="singleDeliveryMethod" value="직배송"/> 직배송</span>
+                <span class="checkbox-group"><input type="checkbox" name="singleDeliveryMethod" value="퀵배송"/> 퀵배송</span>
+                <span class="checkbox-group">
+                    <input type="checkbox" id="singleDeliveryMethodOtherChk"/> <label for="singleDeliveryMethodOtherChk">기타</label>
+                </span>
+            </div>
+        </div>
+        <div class="form-group" id="singleDeliveryMethodOtherTxtGroup" style="display:none;">
+            <label>&nbsp;</label>
+            <input type="text" id="singleDeliveryMethodOtherText" placeholder="기타 배송방법 직접 입력" class="input-other-text-field"/>
+        </div>
+    </div>
+
+    <div id="partialDeliverySetup" style="display:none; width:100%;">
+        <div class="form-group">
+            <label>분할 차수</label>
+            <select id="partialDeliveryInstallments" style="flex-grow:0.3;">
+                <option value="1">1차</option>
+                <option value="2" selected>2차</option> 
+                <option value="3">3차</option>
+                <option value="4">4차</option>
+                <option value="5">5차</option>
+            </select>
+        </div>
+        <div id="partialDeliveryDetailsContainer" style="margin-top: 8px;">
+        </div>
+        <div id="partialDeliverySummary" style="margin-top: 15px; padding-top:10px; border-top: 1px solid #eee; display:none;">
+             <div class="form-group">
+                <label class="summary-main-label">입력수량 합계:</label>
+                <span id="totalInstallmentQtySum">0</span><span class="unit-label">매</span>
+                <label style="margin-left:15px;">(% 합계:</label>
+                <span id="totalInstallmentPercentSum">0.0</span><span class="unit-label">%)</span>
+            </div>
+            <div class="form-group">
+                <label class="summary-main-label">잔여 수량:</label>
+                <span id="remainingQty">0</span><span class="unit-label">매</span>
+                <label style="margin-left:15px;">(잔여 %:</label>
+                <span id="remainingPercent">0.0</span><span class="unit-label">%)</span>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="section">
+<div class="section-header">10. 거래 조건</div> 
+<div class="section-content">
+    <div class="form-group">
+        <label>결제 방법</label>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; flex: 1; gap: 0 10px;">
+            <span class="radio-group"><input type="radio" name="paymentMethod" value="cash" id="paymentCash" checked/> 현금</span>
+            <span class="radio-group"><input type="radio" name="paymentMethod" value="card" id="paymentCard"/> 카드</span>
+            <span class="radio-group"><input type="radio" name="paymentMethod" value="other" id="paymentOtherMethod"/> 기타</span>
+        </div>
+    </div>
+    <div class="form-group" id="paymentOtherMethodGroup" style="display:none;">
+        <label>&nbsp;</label> 
+        <input type="text" id="paymentOtherMethodText" placeholder="기타 결제 방법 직접 입력" class="input-other-text-field"/>
+    </div>
+
+    <div class="form-group">
+        <label>결제 조건</label>
+        <div style="display: flex; flex-wrap: wrap; flex: 1; align-items: center; gap: 0 10px;">
+            <span class="radio-group"><input type="radio" name="paymentTerm" value="end_month" id="termEndMonth" checked/> 월말</span>
+            <span class="radio-group"><input type="radio" name="paymentTerm" value="next_month_30" id="termNextMonth30"/> 익월말(30일)</span>
+            <span class="radio-group"><input type="radio" name="paymentTerm" value="next_next_month_60" id="termNextNextMonth60"/> 익익월말(60일)</span>
+            <span class="radio-group">
+                <input type="radio" name="paymentTerm" value="other" id="paymentOtherTerm"/> 기타
+            </span>
+        </div>
+    </div>
+    <div class="form-group" id="paymentOtherTermGroup" style="display:none;">
+        <label>&nbsp;</label>
+        <input type="text" id="paymentOtherTermText" placeholder="기타 결제 조건 직접 입력" class="input-other-text-field"/>
+    </div>
+    <div class="form-group">
+        <label></label> 
+        <span style="font-size:11px; color:red; flex:1;">* 기준: 거래일 해당 월, 월말 마감 후</span>
+    </div>
+</div>
+</div>
+</div>
+<div class="grid2">
+<div class="section">
+<div class="section-header">11. 참고 자료</div>
+<div class="section-content"> 
+    <div class="inline-checkbox-group">
+        <span class="checkbox-group"><input type="checkbox"/> AI 파일</span>
+        <span class="checkbox-group"><input type="checkbox"/> PDF 파일</span>
+        <span class="checkbox-group"><input type="checkbox"/> 이미지 파일</span>
+        <span class="checkbox-group"><input type="checkbox"/> 팬톤</span>
+        <span class="checkbox-group"><input type="checkbox"/> 실물 샘플</span>
+        <span class="checkbox-group"> 
+            <input type="checkbox" id="s11_other_chk"/> <label for="s11_other_chk">기타</label>
+        </span>
+    </div>
+</div>
+<div class="form-group" id="s11_other_txt_group" style="display:none;"> <label>&nbsp;</label>
+    <input type="text" id="s11_other_txt" placeholder="기타 참고자료 입력" class="input-other-text-field"/>
+</div>
+</div>
+<div class="section">
+<div class="section-header">12. 견적 제출 요청사항</div>
+<div class="section-content"> 
+    <div class="inline-checkbox-group" style="margin-bottom: 5px;">
+        <span class="checkbox-group"><input type="checkbox" id="s12_detail_chk"/><label for="s12_detail_chk">상세 단가 내역</label></span>
+        <span class="checkbox-group"><input type="checkbox" id="s12_duedate_chk"/><label for="s12_duedate_chk">예상 납기일</label></span>
+        <span class="checkbox-group"><input type="checkbox" id="s12_sampleprod_chk"/><label for="s12_sampleprod_chk">샘플 제작 유/무료</label></span>
+        <span class="checkbox-group"> 
+            <input type="checkbox" id="requestTieredPricing"/> <label for="requestTieredPricing">수량별 단가 요청</label>
+        </span>
+        <span class="checkbox-group">
+            <input type="checkbox" id="s12_other_chk"/> <label for="s12_other_chk">기타</label>
+        </span>
+    </div>
+    <div id="tieredPricingOptions" style="display:none; width:100%; padding-left:0px; margin-top:5px;"> 
+            <div class="form-group" style="margin-bottom: 3px;">
+                <label style="width:120px; margin-right:5px;">수량별 경우의 수:</label>
+                <select id="numPriceTiers" style="flex-grow:0; width:100px; padding: 4px; font-size: 13px;">
+                    <option value="1">1 경우</option>
+                    <option value="2">2 경우</option>
+                    <option value="3" selected>3 경우</option>
+                    <option value="4">4 경우</option>
+                    <option value="5">5 경우</option>
+                </select>
+            </div>
+            <div id="priceTierDetailsContainer" style="margin-top:5px; padding-left:120px;"> 
+            </div>
+    </div>
+    <div class="form-group" id="s12_other_txt_group" style="display:none; padding-left:120px;">
+        <input type="text" id="s12_other_txt" placeholder="기타 요청사항 입력" class="input-other-text-field"/>
+    </div>
+</div>
+</div>
+</div>
+<div class="section" id="productSummarySection" style="display:none;">
+    <div class="section-header">13. 제품요약</div>
+    <div class="section-content" id="productSummaryContent">
+        <ul id="summaryList">
+            </ul>
+    </div>
+</div>
+<div class="section">
+<div class="section-header">14. 추가 요구사항</div>
+<div class="section-content">
+<textarea rows="5"></textarea>
+</div>
+</div>
+</div>
+<div class="footer">
+      * 본 견적요청서의 모든 정보는 기밀로 취급되며, 견적 및 제작진행과 관련된 목적 이외의 용도로 사용할 수 없습니다.<br/>
+      * 견적작성을 위해 제출된 디자인 및 모든 관련자료의 저작권은 (주)원라벨에 있으며 요청받은 업체 외에는 외부유출을 금지합니다.<br/>
+      * 위의 내용에 이의가 있을 시 즉시 연락 바랍니다.
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function setupExclusiveToggle(group) {
+    const mainA = document.getElementById(group.mainA);
+    const mainB = document.getElementById(group.mainB);
+    const subsA = group.subsA.map(id => document.getElementById(id));
+    const subsB = group.subsB.map(id => document.getElementById(id));
+    const subsAGroup = subsA[0]?.closest(".form-group");
+    const subsBGroup = subsB[0]?.closest(".form-group");
+
+    function disableAndHide(groupEls) {
+      if (groupEls) groupEls.style.display = "none";
+      [...(groupEls?.querySelectorAll("input") || [])].forEach(el => {
+        el.disabled = true;
+        el.checked = false;
+      });
+    }
+
+    function enableAndShow(groupEls) {
+      if (groupEls) groupEls.style.display = "block";
+      [...(groupEls?.querySelectorAll("input") || [])].forEach(el => {
+        el.disabled = false;
+      });
+    }
+
+    function toggleMain(clicked, other, showGroup, hideGroup) {
+      if (clicked.checked) {
+        other.checked = false;
+        disableAndHide(hideGroup);
+        enableAndShow(showGroup);
+      } else {
+        disableAndHide(showGroup);
+      }
+    }
+
+    if (mainA && mainB) {
+      mainA.addEventListener("change", () =>
+        toggleMain(mainA, mainB, subsAGroup, subsBGroup)
+      );
+      mainB.addEventListener("change", () =>
+        toggleMain(mainB, mainA, subsBGroup, subsAGroup)
+      );
+    }
+
+    disableAndHide(subsAGroup);
+    disableAndHide(subsBGroup);
+  }
+
+  setupExclusiveToggle({
+    mainA: "uvGloss",
+    mainB: "uvMatte",
+    subsA: ["uvGlossTypeNormal", "uvGlossTypeRibbon"],
+    subsB: ["uvMatteTypeNormal", "uvMatteTypeRibbon"]
+  });
+
+  setupExclusiveToggle({
+    mainA: "laminateGloss",
+    mainB: "laminateMatte",
+    subsA: ["lamGlossTypeNormal", "lamGlossTypeRibbon"],
+    subsB: ["lamMatteTypeNormal", "lamMatteTypeRibbon"]
+  });
+
+  const fullCut = document.getElementById("fullCut");
+  const halfCut = document.getElementById("halfCut");
+  if (fullCut && halfCut) {
+    fullCut.addEventListener("click", function () {
+      if (!confirm("[주의] 제작사양에 대해 정확히 확인 하셨습니까?")) {
+        fullCut.checked = false;
+        halfCut.checked = true;
+      }
+    });
+  }
+  
+  function setupConditionalDisplay(controlId, targetGroupId, isRadioGroup = false, radioGroupName = null, displayType = 'flex') {
+    const controlElement = document.getElementById(controlId);
+    const targetGroup = document.getElementById(targetGroupId);
+
+    if (!controlElement || !targetGroup) { return; }
+
+    const toggleFunc = () => {
+        const isChecked = controlElement.checked;
+        const associatedInputs = targetGroup.querySelectorAll('input, select, textarea');
+
+        if (isChecked) {
+            targetGroup.style.display = displayType; 
+            associatedInputs.forEach(inp => inp.disabled = false);
+        } else {
+            targetGroup.style.display = 'none'; 
+            associatedInputs.forEach(inp => {
+                inp.disabled = true;
+                if ((inp.tagName === 'INPUT' && inp.type !== 'radio' && inp.type !== 'checkbox') || inp.tagName === 'TEXTAREA') {
+                     inp.value = '';
+                }
+                // Checkboxes/Radios within the group should be unchecked/reset when disabled
+                if (inp.type === 'checkbox' || inp.type === 'radio') {
+                    inp.checked = false;
+                }
+            });
+        }
+        updateRequiredDocuments(); // 상태 변경 시 필수서류 업데이트
+        updateProductSummary(); // 제품요약 업데이트
+    };
+
+    if (isRadioGroup && radioGroupName) {
+        const radios = document.querySelectorAll(`input[name="${radioGroupName}"]`);
+        radios.forEach(radio => radio.addEventListener('change', toggleFunc));
+    } else {
+        controlElement.addEventListener('change', toggleFunc);
+    }
+    toggleFunc(); // Initial setup
+  }
+  
+  setupConditionalDisplay('s3_label_other_chk', 's3_label_other_txt_group');
+  setupConditionalDisplay('s4_liner_other_chk', 's4_liner_other_txt_group'); 
+  setupConditionalDisplay('s5_print_other_chk', 's5_print_other_txt_group'); 
+  setupConditionalDisplay('hotFoil', 'hotFoilDetailsGroup');
+  setupConditionalDisplay('coldFoil', 'coldFoilDetailsGroup');
+  setupConditionalDisplay('insp_other_chk', 'insp_other_txt_group');
+  setupConditionalDisplay('s11_other_chk', 's11_other_txt_group');
+  setupConditionalDisplay('labelingOtherChk', 'labelingOtherTxtGroup');
+  setupConditionalDisplay('rawMaterialOtherChk', 'rawMaterialOtherTxtGroup');
+  setupConditionalDisplay('deliveryMethodOtherChk', 'singleDeliveryMethodOtherTxtGroup'); // 단일 배송 방법 기타
+  setupConditionalDisplay('s12_other_chk', 's12_other_txt_group');
+
+  setupConditionalDisplay('paymentOtherMethod', 'paymentOtherMethodGroup', true, 'paymentMethod');
+  setupConditionalDisplay('paymentOtherTerm', 'paymentOtherTermGroup', true, 'paymentTerm');
+
+  // Add this new line for the "기타" color option
+  setupConditionalDisplay('colorOtherRadio', 'materialColorOtherTxtGroup', true, 'color');
+
+  // 품질인증서, 검사성적서 라디오 버튼 변경 시에도 updateRequiredDocuments 호출
+  document.querySelectorAll('input[name="cert"]').forEach(radio => radio.addEventListener('change', function() { updateRequiredDocuments(); updateProductSummary(); }));
+  document.querySelectorAll('input[name="test_report"]').forEach(radio => radio.addEventListener('change', function() { updateRequiredDocuments(); updateProductSummary(); }));
+  // 원자재 관련 자료 체크박스 변경 시에도 updateRequiredDocuments 호출
+  document.getElementById('rawMaterialMSDS')?.addEventListener('change', function() { updateRequiredDocuments(); updateProductSummary(); });
+  document.getElementById('rawMaterialTDS')?.addEventListener('change', function() { updateRequiredDocuments(); updateProductSummary(); });
+  document.getElementById('rawMaterialOtherChk')?.addEventListener('change', function() { updateRequiredDocuments(); updateProductSummary(); });
+  document.getElementById('rawMaterialOtherText')?.addEventListener('input', function() { updateRequiredDocuments(); updateProductSummary(); });
+  // 기타 품질요구사항 입력 변경 시에도 updateRequiredDocuments 호출
+  document.getElementById('otherQualityRequirements')?.addEventListener('input', function() { updateRequiredDocuments(); updateProductSummary(); });
+
+  // 색차 기준 변경 시 제품요약 업데이트
+  document.getElementById('deltaE_ab_check_final')?.addEventListener('change', updateProductSummary);
+  document.getElementById('deltaE_ab_value_final')?.addEventListener('input', updateProductSummary);
+  document.getElementById('deltaE_00_check_final')?.addEventListener('change', updateProductSummary);
+  document.getElementById('deltaE_00_value_final')?.addEventListener('input', updateProductSummary);
+
+  
+  const packOtherRadio = document.getElementById('pack_other_radio');
+  const packOtherText = document.getElementById('pack_other_text');
+  if (packOtherRadio && packOtherText) {
+    const packagingRadiosForOther = document.querySelectorAll('input[name="packaging_method"]');
+    packagingRadiosForOther.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (packOtherRadio.checked) {
+                packOtherText.disabled = false;
+            } else {
+                packOtherText.disabled = true;
+                packOtherText.value = '';
+            }
+            updateProductSummary(); // 제품요약 업데이트
+        });
+    });
+    if (!packOtherRadio.checked) { 
+        packOtherText.disabled = true;
+    } else { 
+        packOtherText.disabled = false;
+    }
+  }
+
+
+  const rfqDateInput = document.getElementById('rfqDate');
+  const submissionDueDateInput = document.getElementById('submissionDueDate');
+  if (rfqDateInput && submissionDueDateInput) {
+      rfqDateInput.addEventListener('change', function() {
+          if (this.value) {
+              const selectedDate = new Date(this.value);
+              selectedDate.setDate(selectedDate.getDate() + 1);
+              const year = selectedDate.getFullYear();
+              const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+              const day = String(selectedDate.getDate()).padStart(2, '0');
+              submissionDueDateInput.value = `${year}-${month}-${day}`;
+          } else {
+              submissionDueDateInput.value = ''; 
+          }
+          updateProductSummary(); // 제품요약 업데이트
+      });
+  }
+
+  const qualCheckboxes = document.querySelectorAll('.qual-check'); 
+  const qualPremiumCheckbox = document.getElementById('qual_premium'); 
+  const deltaEAbValueInput = document.getElementById('deltaE_ab_value_final'); 
+  const deltaE00ValueInput = document.getElementById('deltaE_00_value_final'); 
+  const deltaEAbCheck = document.getElementById('deltaE_ab_check_final'); 
+  const deltaE00Check = document.getElementById('deltaE_00_check_final'); 
+  const defaultColorDiffValue = "2.0";
+  const premiumColorDiffValue = "1.0";
+
+  function handlePrintQualityChange() {
+      if (!qualPremiumCheckbox ) { return; }
+      const targetValue = qualPremiumCheckbox.checked ? premiumColorDiffValue : defaultColorDiffValue;
+      if (deltaEAbCheck && deltaEAbCheck.checked && deltaEAbValueInput) deltaEAbValueInput.value = targetValue;
+      if (deltaE00Check && deltaE00Check.checked && deltaE00ValueInput) deltaE00ValueInput.value = targetValue; 
+      updateProductSummary(); // 제품요약 업데이트
+  }
+
+  qualCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+          if (this.checked) {
+              qualCheckboxes.forEach(cb => {
+                  if (cb !== this) { cb.checked = false; }
+              });
+          }
+          handlePrintQualityChange(); 
+      });
+  });
+  
+  function toggleDeltaEInput(checkbox, inputField) {
+      if (checkbox && inputField) { 
+          inputField.disabled = !checkbox.checked; 
+          if(!checkbox.checked) {
+            inputField.value = defaultColorDiffValue; 
+          } else { 
+             handlePrintQualityChange(); 
+          }
+      }
+  }
+
+  if (deltaEAbCheck && deltaEAbValueInput) {
+      toggleDeltaEInput(deltaEAbCheck, deltaEAbValueInput); 
+      deltaEAbCheck.addEventListener('change', function() {
+          toggleDeltaEInput(this, deltaEAbValueInput);
+      });
+  }
+
+  if (deltaE00Check && deltaE00ValueInput) {
+      toggleDeltaEInput(deltaE00Check, deltaE00ValueInput); 
+      deltaE00Check.addEventListener('change', function() {
+          toggleDeltaEInput(this, deltaE00ValueInput);
+      });
+  }
+  handlePrintQualityChange(); 
+
+
+  const surfaceLayerCountSelect = document.getElementById('surfaceLayerCount');
+  const surfaceLayerDetailsContainer = document.getElementById('surfaceLayerDetailsContainer');
+  const surfaceMaterialOptions = [
+      { value: "", text: "선택" }, { value: "Art", text: "아트" }, { value: "PET", text: "PET" },
+      { value: "PP", text: "PP" }, { value: "PE", text: "PE" }, { value: "Tyvek", text: "타이벡" },
+      { value: "Other", text: "기타" }
+  ];
+
+  function generateLayerInputs(count) {
+      surfaceLayerDetailsContainer.innerHTML = ''; 
+      for (let i = 1; i <= count; i++) {
+          const layerDiv = document.createElement('div');
+          layerDiv.classList.add('form-group', 'layer-spec');
+          layerDiv.style.alignItems = 'center'; 
+
+          const label = document.createElement('label');
+          label.textContent = `표면재 (${i}층)`;
+          
+          const select = document.createElement('select');
+          select.classList.add('surface-material-select');
+          select.id = `surface_material_layer_${i}`;
+          select.name = `surface_material_layer_${i}`;
+          select.style.flex = '1'; 
+          surfaceMaterialOptions.forEach(opt => {
+              const option = document.createElement('option');
+              option.value = opt.value;
+              option.textContent = opt.text;
+              select.appendChild(option);
+          });
+
+          const otherTextInput = document.createElement('input');
+          otherTextInput.type = 'text';
+          otherTextInput.classList.add('input-other-text-field'); 
+          otherTextInput.id = `surface_material_other_layer_${i}_text`;
+          otherTextInput.name = `surface_material_other_layer_${i}_text`;
+          otherTextInput.placeholder = '기타 재질명 입력';
+          otherTextInput.style.display = 'none';
+          otherTextInput.style.marginLeft = '8px';
+          otherTextInput.style.width = 'auto'; 
+          otherTextInput.style.flex = '0.8'; 
+
+          select.addEventListener('change', function() {
+              const associatedTextInput = this.parentElement.querySelector(`#surface_material_other_layer_${i}_text`);
+              if (this.value === 'Other') {
+                  associatedTextInput.style.display = 'inline-block'; 
+                  associatedTextInput.disabled = false;
+              } else {
+                  associatedTextInput.style.display = 'none';
+                  associatedTextInput.disabled = true;
+                  associatedTextInput.value = '';
+              }
+              updateProductSummary(); // 제품요약 업데이트
+          });
+          otherTextInput.addEventListener('input', updateProductSummary); // 제품요약 업데이트
+
+          layerDiv.appendChild(label);
+          layerDiv.appendChild(select);
+          layerDiv.appendChild(otherTextInput);
+          surfaceLayerDetailsContainer.appendChild(layerDiv);
+      }
+      updateProductSummary(); // 제품요약 업데이트
+  }
+
+  if (surfaceLayerCountSelect && surfaceLayerDetailsContainer) {
+      surfaceLayerCountSelect.addEventListener('change', function() {
+          const count = parseInt(this.value, 10);
+          generateLayerInputs(count);
+      });
+      generateLayerInputs(parseInt(surfaceLayerCountSelect.value, 10)); 
+  }
+
+  const spotCheck = document.getElementById('spotCheck');
+  const spotCountSelect = document.getElementById('spotCount');
+  const pantoneContainer = document.getElementById('pantoneContainer');
+
+  function generatePantoneInputs() {
+      if (!pantoneContainer || !spotCountSelect || !spotCheck || !spotCheck.checked) {
+          if (pantoneContainer) pantoneContainer.innerHTML = '';
+          updateProductSummary(); // 제품요약 업데이트
+          return;
+      }
+      pantoneContainer.innerHTML = '';
+      const count = parseInt(spotCountSelect.value, 10);
+
+      if (count > 0) {
+          for (let i = 1; i <= count; i++) {
+              const pantoneGroup = document.createElement('div');
+              pantoneGroup.classList.add('form-group', 'pantone-input-group');
+              pantoneGroup.style.marginBottom = '4px'; 
+              pantoneGroup.style.marginLeft = '120px'; 
+
+              const label = document.createElement('label');
+              label.textContent = `별색 ${i} Pantone`;
+
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.placeholder = 'P XXX C';
+              input.classList.add('pantone-number-input');
+              input.name = `pantone_color_${i}`;
+              input.style.flex = '1'; 
+              input.addEventListener('input', updateProductSummary); // 제품요약 업데이트
+
+              pantoneGroup.appendChild(label);
+              pantoneGroup.appendChild(input);
+              pantoneContainer.appendChild(pantoneGroup);
+          }
+      }
+      updateProductSummary(); // 제품요약 업데이트
+  }
+
+  if (spotCheck && spotCountSelect) {
+      spotCheck.addEventListener('change', function() {
+          if (this.checked) {
+              spotCountSelect.style.display = 'inline-block';
+              generatePantoneInputs(); 
+          } else {
+              spotCountSelect.style.display = 'none';
+              spotCountSelect.value = "0"; 
+              if (pantoneContainer) pantoneContainer.innerHTML = '';
+          }
+          updateProductSummary(); // 제품요약 업데이트
+      });
+      spotCountSelect.addEventListener('change', generatePantoneInputs);
+      
+      if (spotCheck.checked) {
+          spotCountSelect.style.display = 'inline-block';
+          generatePantoneInputs(); 
+      } else {
+          spotCountSelect.style.display = 'none';
+      }
+  }
+
+    function formatNumberWithCommas(numStr) {
+        if (numStr === null || numStr === undefined) numStr = '';
+        numStr = String(numStr).trim();
+        if (numStr === '') return '';
+        
+        const number = parseFloat(stripCommas(numStr));
+        if (isNaN(number)) return ''; 
+        return number.toLocaleString('en-US');
+    }
+
+    function stripCommas(value) {
+        return String(value).replace(/,/g, '');
+    }
+
+    function applyThousandSeparatorListener(inputElement) {
+        if (inputElement) {
+            if (inputElement.type === 'number') { 
+                inputElement.type = 'text';
+            }
+            inputElement.inputMode = 'numeric'; 
+            inputElement.style.textAlign = 'right';
+
+            inputElement.addEventListener('input', function(e) {
+                let value = e.target.value;
+                let numericValue = stripCommas(value);
+                
+                if (numericValue === '' || (isNaN(Number(numericValue)) && numericValue !== '-')) {
+                     if(numericValue !== '' && numericValue !== '-') e.target.value = ''; 
+                    return; 
+                }
+                
+                let cursorPosition = e.target.selectionStart;
+                const originalLength = value.length;
+                const numCommasBefore = (value.substring(0, cursorPosition).match(/,/g) || []).length;
+
+                e.target.value = formatNumberWithCommas(numericValue);
+                
+                const newLength = e.target.value.length;
+                let newCursorPosition = cursorPosition + (newLength - originalLength);
+                const commasAddedAfterFormatting = (e.target.value.substring(0, newCursorPosition).match(/,/g) || []).length - numCommasBefore;
+                newCursorPosition += commasAddedAfterFormatting;
+                
+                newCursorPosition = Math.max(0, Math.min(newCursorPosition, newLength));
+                
+                if (cursorPosition !== null && document.activeElement === e.target) { 
+                     try { e.target.setSelectionRange(newCursorPosition, newCursorPosition); } catch(err) {}
+                }
+            });
+
+            inputElement.addEventListener('blur', function(e) { 
+                let value = stripCommas(e.target.value);
+                if (value !== '' && !isNaN(Number(value))) {
+                    e.target.value = formatNumberWithCommas(value);
+                } else if (value === '') {
+                     e.target.value = ''; 
+                } else {
+                    e.target.value = ''; 
+                }
+            });
+
+            if (inputElement.value) { 
+                inputElement.value = formatNumberWithCommas(stripCommas(inputElement.value));
+            }
+        }
+    }
+    
+    applyThousandSeparatorListener(document.getElementById('totalOrderQuantity'));
+    applyThousandSeparatorListener(document.getElementById('packagingUnitQty'));
+
+
+    const deliveryTypeSingleRadio = document.getElementById('deliveryTypeSingle');
+    const deliveryTypePartialRadio = document.getElementById('deliveryTypePartial');
+    const singleDeliveryDisplayDiv = document.getElementById('singleDeliveryDisplay');
+    const singleDeliveryTotalQtyInput = document.getElementById('singleDeliveryTotalQty');
+    const singleDeliveryDueDateInput = document.getElementById('singleDeliveryDueDate');
+    const partialDeliverySetupDiv = document.getElementById('partialDeliverySetup');
+    const partialInstallmentsSelect = document.getElementById('partialDeliveryInstallments');
+    const partialDetailsContainer = document.getElementById('partialDeliveryDetailsContainer');
+    const totalQtyInput = document.getElementById('totalOrderQuantity'); 
+    
+    const partialDeliverySummaryDiv = document.getElementById('partialDeliverySummary');
+    const totalInstallmentQtySumEl = document.getElementById('totalInstallmentQtySum');
+    const totalInstallmentPercentSumEl = document.getElementById('totalInstallmentPercentSum');
+    const remainingQtyEl = document.getElementById('remainingQty');
+    const remainingPercentEl = document.getElementById('remainingPercent');
+
+    function updatePartialDeliverySummary() {
+        if (!totalQtyInput || !partialDetailsContainer || !partialDeliverySummaryDiv || 
+            !partialDeliverySetupDiv || partialDeliverySetupDiv.style.display === 'none') { 
+            if(partialDeliverySummaryDiv) partialDeliverySummaryDiv.style.display = 'none';
+            return;
+        }
+        partialDeliverySummaryDiv.style.display = 'block';
+
+        let currentTotalQty = 0;
+        const qtyInputs = partialDetailsContainer.querySelectorAll('input[name^="installment_qty_"]');
+        qtyInputs.forEach(input => {
+            const val = parseFloat(stripCommas(input.value));
+            if (!isNaN(val) && val >= 0) {
+                currentTotalQty += val;
+            }
+        });
+
+        const overallTotalQty = parseFloat(stripCommas(totalQtyInput.value));
+        let currentTotalPercent = 0.0;
+
+        if (!isNaN(overallTotalQty) && overallTotalQty > 0) {
+            currentTotalPercent = (currentTotalQty / overallTotalQty) * 100;
+        } else if (qtyInputs.length > 0 && currentTotalQty === 0 && (isNaN(overallTotalQty) || overallTotalQty === 0)) {
+             currentTotalPercent = 0;
+        }
+
+        if (totalInstallmentQtySumEl) totalInstallmentQtySumEl.textContent = formatNumberWithCommas(currentTotalQty.toString());
+        if (totalInstallmentPercentSumEl) totalInstallmentPercentSumEl.textContent = currentTotalPercent.toFixed(1);
+
+        if (!isNaN(overallTotalQty) && overallTotalQty >= 0) {
+            const remainingQtyCalc = Math.max(0, overallTotalQty - currentTotalQty); 
+            const remainingPercentCalc = Math.max(0, 100.0 - currentTotalPercent); 
+
+            if(remainingQtyEl) remainingQtyEl.textContent = formatNumberWithCommas(remainingQtyCalc.toString());
+            if(remainingPercentEl) remainingPercentEl.textContent = remainingPercentCalc.toFixed(1);
+            
+            if (currentTotalQty > overallTotalQty || currentTotalPercent > 100.1) { 
+                partialDeliverySummaryDiv.style.color = 'red';
+            } else {
+                partialDeliverySummaryDiv.style.color = ''; 
+            }
+        } else { 
+            if(remainingQtyEl) remainingQtyEl.textContent = 'N/A';
+            if(remainingPercentEl) remainingPercentEl.textContent = 'N/A';
+            partialDeliverySummaryDiv.style.color = '';
+        }
+    }
+
+    function updateTotalDisplayForSingleDelivery() {
+        if (totalQtyInput && singleDeliveryTotalQtyInput) {
+            const totalVal = stripCommas(totalQtyInput.value);
+            singleDeliveryTotalQtyInput.value = formatNumberWithCommas(totalVal);
+        }
+    }
+
+    if (totalQtyInput) { 
+        totalQtyInput.addEventListener('input', function() {
+             if (singleDeliveryDisplayDiv && singleDeliveryDisplayDiv.style.display !== 'none') { 
+                updateTotalDisplayForSingleDelivery();
+            }
+            updatePartialDeliverySummary(); 
+            calculateAndDisplaySheetBundleInfo(); 
+            calculateAndDisplayRollInfo();    
+            updateProductSummary(); // 제품요약 업데이트
+        });
+        if(totalQtyInput.value) totalQtyInput.value = formatNumberWithCommas(stripCommas(totalQtyInput.value));
+    }
+
+
+    function generateInstallmentFields(numInstallments) {
+        partialDetailsContainer.innerHTML = ''; 
+        if (numInstallments <= 0) {
+            updatePartialDeliverySummary(); 
+            updateProductSummary(); // 제품요약 업데이트
+            return;
+        }
+
+        for (let i = 1; i <= numInstallments; i++) {
+            const installmentGroup = document.createElement('div');
+            installmentGroup.classList.add('installment-group-wrapper'); // 개별 분할납기 그룹을 위한 래퍼
+            
+            // 납기일, 수량, % 입력 필드 (기존 로직)
+            const qtyDateGroup = document.createElement('div');
+            qtyDateGroup.classList.add('form-group', 'installment-group');
+            qtyDateGroup.style.alignItems = 'center';
+
+            const dateLabel = document.createElement('label');
+            dateLabel.textContent = `${i}차 요청 납기일`;
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.name = `installment_date_${i}`;
+            dateInput.addEventListener('change', updateProductSummary); // 제품요약 업데이트
+
+            const qtyLabel = document.createElement('label');
+            qtyLabel.textContent = '수량';
+            const qtyInput = document.createElement('input');
+            qtyInput.type = 'text'; 
+            qtyInput.inputmode = 'numeric';
+            qtyInput.name = `installment_qty_${i}`;
+            qtyInput.placeholder = "0";
+            qtyInput.style.width = '100px'; 
+            applyThousandSeparatorListener(qtyInput); 
+            
+            const qtyUnit = document.createElement('span');
+            qtyUnit.textContent = '매'; qtyUnit.classList.add('unit-label');
+
+            const percentLabel = document.createElement('label');
+            percentLabel.textContent = '또는 %';
+            const percentInput = document.createElement('input');
+            percentInput.type = 'number'; 
+            percentInput.name = `installment_percent_${i}`;
+            percentInput.step = '0.1';
+            percentInput.min = "0";
+            percentInput.placeholder = "0.0";
+            percentInput.style.width = '80px'; 
+            const percentUnit = document.createElement('span');
+            percentUnit.textContent = '%'; percentUnit.classList.add('unit-label');
+
+            qtyInput.addEventListener('input', function() {
+                const totalQty = parseFloat(stripCommas(totalQtyInput.value));
+                const currentQty = parseFloat(stripCommas(this.value)); 
+                if (!isNaN(totalQty) && totalQty > 0 && !isNaN(currentQty) && currentQty >= 0) {
+                    percentInput.value = ((currentQty / totalQty) * 100).toFixed(1);
+                } else if (stripCommas(this.value) === '') { 
+                    percentInput.value = '';
+                }
+                updatePartialDeliverySummary();
+                updateProductSummary(); // 제품요약 업데이트
+            });
+            percentInput.addEventListener('input', function() {
+                const totalQty = parseFloat(stripCommas(totalQtyInput.value));
+                const currentPercent = parseFloat(this.value);
+                if (!isNaN(totalQty) && totalQty > 0 && !isNaN(currentPercent) && currentPercent >= 0) {
+                    const calculatedQty = Math.round((currentPercent / 100) * totalQty);
+                    qtyInput.value = formatNumberWithCommas(calculatedQty.toString()); 
+                } else if (this.value === '') { 
+                    qtyInput.value = '';
+                }
+                updatePartialDeliverySummary();
+                updateProductSummary(); // 제품요약 업데이트
+            });
+
+            qtyDateGroup.appendChild(dateLabel); qtyDateGroup.appendChild(dateInput);
+            qtyDateGroup.appendChild(qtyLabel); qtyDateGroup.appendChild(qtyInput); qtyDateGroup.appendChild(qtyUnit);
+            qtyDateGroup.appendChild(percentLabel); qtyDateGroup.appendChild(percentInput); qtyDateGroup.appendChild(percentUnit);
+            
+            installmentGroup.appendChild(qtyDateGroup); // 래퍼에 추가
+
+            // 각 분할 납기별 배송 정보 추가
+            const deliveryInfoGroup = document.createElement('div');
+            deliveryInfoGroup.classList.add('partial-delivery-info'); // 새로운 클래스 추가
+            
+            const addressGroup = document.createElement('div');
+            addressGroup.classList.add('form-group');
+            addressGroup.innerHTML = `<label>납품처 주소</label><input type="text" name="installment_address_${i}"/>`;
+            deliveryInfoGroup.appendChild(addressGroup);
+            addressGroup.querySelector('input').addEventListener('input', updateProductSummary); // 제품요약 업데이트
+
+            const contactPersonGroup = document.createElement('div');
+            contactPersonGroup.classList.add('form-group');
+            contactPersonGroup.innerHTML = `<label>입고담당자</label><input type="text" name="installment_contact_person_${i}"/>`;
+            deliveryInfoGroup.appendChild(contactPersonGroup);
+            contactPersonGroup.querySelector('input').addEventListener('input', updateProductSummary); // 제품요약 업데이트
+
+            const phoneGroup = document.createElement('div');
+            phoneGroup.classList.add('form-group');
+            phoneGroup.innerHTML = `<label>연락처</label><input type="tel" name="installment_phone_${i}"/>`;
+            deliveryInfoGroup.appendChild(phoneGroup);
+            phoneGroup.querySelector('input').addEventListener('input', updateProductSummary); // 제품요약 업데이트
+
+            const deliveryMethodGroup = document.createElement('div');
+            deliveryMethodGroup.classList.add('form-group');
+            deliveryMethodGroup.innerHTML = `
+                <label>배송방법</label>
+                <div class="inline-checkbox-group">
+                    <span class="checkbox-group"><input type="checkbox" name="installment_delivery_method_${i}" value="택배"/> 택배</span>
+                    <span class="checkbox-group"><input type="checkbox" name="installment_delivery_method_${i}" value="화물"/> 화물</span>
+                    <span class="checkbox-group"><input type="checkbox" name="installment_delivery_method_${i}" value="직배송"/> 직배송</span>
+                    <span class="checkbox-group"><input type="checkbox" name="installment_delivery_method_${i}" value="퀵배송"/> 퀵배송</span>
+                    <span class="checkbox-group">
+                        <input type="checkbox" id="installment_delivery_method_other_chk_${i}"/> <label for="installment_delivery_method_other_chk_${i}">기타</label>
+                    </span>
+                </div>`;
+            deliveryInfoGroup.appendChild(deliveryMethodGroup);
+            deliveryMethodGroup.querySelectorAll('input[type="checkbox"]').forEach(chk => chk.addEventListener('change', updateProductSummary)); // 제품요약 업데이트
+
+            const deliveryMethodOtherTxtGroup = document.createElement('div');
+            deliveryMethodOtherTxtGroup.classList.add('form-group');
+            deliveryMethodOtherTxtGroup.id = `installment_delivery_method_other_txt_group_${i}`;
+            deliveryMethodOtherTxtGroup.style.display = 'none';
+            deliveryMethodOtherTxtGroup.innerHTML = `
+                <label>&nbsp;</label>
+                <input type="text" id="installment_delivery_method_other_text_${i}" placeholder="기타 배송방법 직접 입력" class="input-other-text-field"/>
+            `;
+            deliveryInfoGroup.appendChild(deliveryMethodOtherTxtGroup);
+            deliveryMethodOtherTxtGroup.querySelector('input').addEventListener('input', updateProductSummary); // 제품요약 업데이트
+
+            installmentGroup.appendChild(deliveryInfoGroup); // 래퍼에 추가
+            partialDetailsContainer.appendChild(installmentGroup);
+
+            // 각 분할 납기별 '기타 배송방법' 토글 기능 설정
+            const otherChk = document.getElementById(`installment_delivery_method_other_chk_${i}`);
+            const otherTxtGroupInput = document.getElementById(`installment_delivery_method_other_text_${i}`);
+            if (otherChk && deliveryMethodOtherTxtGroup && otherTxtGroupInput) {
+                otherChk.addEventListener('change', function() {
+                    if (this.checked) {
+                        deliveryMethodOtherTxtGroup.style.display = 'flex';
+                        otherTxtGroupInput.disabled = false;
+                    } else {
+                        deliveryMethodOtherTxtGroup.style.display = 'none';
+                        otherTxtGroupInput.disabled = true;
+                        otherTxtGroupInput.value = '';
+                    }
+                    updateProductSummary(); // 제품요약 업데이트
+                });
+            }
+        }
+        updatePartialDeliverySummary(); 
+        updateProductSummary(); // 제품요약 업데이트
+    }
+
+    function handleDeliveryTypeChange() {
+        const packagingUnitFormGroupEl = document.getElementById('packagingUnitFormGroup'); 
+        
+        // 단일 납품 관련 필드
+        const singleDeliveryAddress = document.getElementById('singleDeliveryAddress');
+        const singleDeliveryContactPerson = document.getElementById('singleDeliveryContactPerson');
+        const singleDeliveryPhone = document.getElementById('singleDeliveryPhone');
+        const singleDeliveryMethods = document.querySelectorAll('input[name="singleDeliveryMethod"]');
+        const singleDeliveryMethodOtherChk = document.getElementById('singleDeliveryMethodOtherChk');
+        const singleDeliveryMethodOtherTxtGroup = document.getElementById('singleDeliveryMethodOtherTxtGroup');
+
+
+        if (deliveryTypeSingleRadio.checked) {
+            if(singleDeliveryDisplayDiv) singleDeliveryDisplayDiv.style.display = 'block'; 
+            updateTotalDisplayForSingleDelivery();
+            if(partialDeliverySetupDiv) partialDeliverySetupDiv.style.display = 'none';
+            if (partialDetailsContainer) partialDetailsContainer.innerHTML = '';
+            if(partialDeliverySummaryDiv) partialDeliverySummaryDiv.style.display = 'none';
+
+            // 단일 납기 필드 활성화
+            if (singleDeliveryAddress) singleDeliveryAddress.disabled = false;
+            if (singleDeliveryContactPerson) singleDeliveryContactPerson.disabled = false;
+            if (singleDeliveryPhone) singleDeliveryPhone.disabled = false;
+            singleDeliveryMethods.forEach(input => input.disabled = false);
+            setupConditionalDisplay('singleDeliveryMethodOtherChk', 'singleDeliveryMethodOtherTxtGroup');
+
+            // 단일 납기 필드에 이벤트 리스너 추가 (제품요약 업데이트 위함)
+            singleDeliveryAddress?.addEventListener('input', updateProductSummary);
+            singleDeliveryContactPerson?.addEventListener('input', updateProductSummary);
+            singleDeliveryPhone?.addEventListener('input', updateProductSummary);
+            singleDeliveryMethods.forEach(input => input.addEventListener('change', updateProductSummary));
+            document.getElementById('singleDeliveryMethodOtherText')?.addEventListener('input', updateProductSummary);
+
+
+        } else if (deliveryTypePartialRadio.checked) {
+            if(singleDeliveryDisplayDiv) singleDeliveryDisplayDiv.style.display = 'none';
+            if(partialDeliverySetupDiv) partialDeliverySetupDiv.style.display = 'block'; 
+            generateInstallmentFields(parseInt(partialInstallmentsSelect.value, 10));
+
+            // 단일 납기 필드 비활성화 및 초기화
+            if (singleDeliveryAddress) singleDeliveryAddress.disabled = true;
+            if (singleDeliveryContactPerson) singleDeliveryContactPerson.disabled = true;
+            if (singleDeliveryPhone) singleDeliveryPhone.disabled = true;
+            if (singleDeliveryAddress) singleDeliveryAddress.value = '';
+            if (singleDeliveryContactPerson) singleDeliveryContactPerson.value = '';
+            if (singleDeliveryPhone) singleDeliveryPhone.value = '';
+            singleDeliveryMethods.forEach(input => {
+                input.checked = false;
+                input.disabled = true;
+            });
+            if(singleDeliveryMethodOtherChk) singleDeliveryMethodOtherChk.checked = false; // 기타 체크박스 해제
+            if(singleDeliveryMethodOtherTxtGroup) { // 기타 텍스트 필드 숨기고 비활성화
+                singleDeliveryMethodOtherTxtGroup.style.display = 'none';
+                singleDeliveryMethodOtherTxtGroup.querySelector('input').disabled = true;
+                singleDeliveryMethodOtherTxtGroup.querySelector('input').value = '';
+            }
+        }
+        
+        const packSheetRadioEl = document.getElementById('pack_sheet_radio');
+        if (packSheetRadioEl && packSheetRadioEl.checked) { 
+            if (packagingUnitFormGroupEl) packagingUnitFormGroupEl.style.display = 'none';
+        } else {
+            if (packagingUnitFormGroupEl) packagingUnitFormGroupEl.style.display = 'flex'; 
+        }
+        updateProductSummary(); // 제품요약 업데이트
+    }
+
+
+    if (deliveryTypeSingleRadio && deliveryTypePartialRadio && singleDeliveryDisplayDiv && partialDeliverySetupDiv && partialInstallmentsSelect) {
+        deliveryTypeSingleRadio.addEventListener('change', handleDeliveryTypeChange);
+        deliveryTypePartialRadio.addEventListener('change', handleDeliveryTypeChange);
+        partialInstallmentsSelect.addEventListener('change', function() {
+            if (deliveryTypePartialRadio.checked) { 
+                generateInstallmentFields(parseInt(this.value, 10));
+            }
+            updateProductSummary(); // 제품요약 업데이트
+        });
+        handleDeliveryTypeChange(); // Initial call to set correct display based on default checked radio
+    }
+
+    // --- JS for Sheet/Roll Specific Options (Section 7) ---
+    const packagingMethodRadios = document.querySelectorAll('input[name="packaging_method"]');
+    const packRollRadio = document.getElementById('pack_roll_radio'); 
+    const packSheetRadio = document.getElementById('pack_sheet_radio'); 
+
+    const sheetSpecificOptionsDiv = document.getElementById('sheetSpecificOptions');
+    const labelsPerSheetInput = document.getElementById('labelsPerSheet'); 
+    const sheetsPerBundleInput = document.getElementById('sheetsPerBundle');
+    const totalSheetsNeededSpan = document.getElementById('totalSheetsNeededDisp'); 
+    const labelsOnLastSheetSpan = document.getElementById('labelsOnLastSheetDisp'); 
+    const totalBundlesDispSpan = document.getElementById('totalBundlesDisp'); 
+    const leftoverSheetsForBundleDispSpan = document.getElementById('leftoverSheetsForBundleDisp'); 
+    const actualDeliveryQtyForSheetsSpan = document.getElementById('actualDeliveryQtyForSheets');
+    
+    const rollSpecificCalculationsDiv = document.getElementById('rollSpecificCalculations');
+    const packagingUnitLabel = document.getElementById('packagingUnitLabel');
+    const packagingUnitQtyInput = document.getElementById('packagingUnitQty'); 
+    const packagingUnitQtyLabelSuffix = document.getElementById('packagingUnitQtyLabelSuffix');
+    const packagingUnitFormGroup = document.getElementById('packagingUnitFormGroup'); 
+    
+    const totalPhysicalRollsDispSpan = document.getElementById('totalPhysicalRollsDisp'); 
+    const labelsOnLastRollDispSpan = document.getElementById('labelsOnLastRollDisp'); 
+    const actualDeliveryQtyForRollsSpan = document.getElementById('actualDeliveryQtyForRolls');
+
+    function calculateAndDisplaySheetBundleInfo() {
+        if (!sheetSpecificOptionsDiv || 
+            !totalQtyInput || !labelsPerSheetInput || !sheetsPerBundleInput || 
+            !totalSheetsNeededSpan || !labelsOnLastSheetSpan || !totalBundlesDispSpan || 
+            !leftoverSheetsForBundleDispSpan || !actualDeliveryQtyForSheetsSpan) {
+            if(totalSheetsNeededSpan) totalSheetsNeededSpan.textContent = '0';
+            if(labelsOnLastSheetSpan) labelsOnLastSheetSpan.textContent = '0';
+            if(totalBundlesDispSpan) totalBundlesDispSpan.textContent = '0';
+            if(leftoverSheetsForBundleDispSpan) leftoverSheetsForBundleDispSpan.textContent = '0';
+            if(actualDeliveryQtyForSheetsSpan) actualDeliveryQtyForSheetsSpan.textContent = '0';
+            updateProductSummary(); // 제품요약 업데이트
+            return;
+        }
+        
+        if (sheetSpecificOptionsDiv.style.display === 'none') { 
+            updateProductSummary(); // 제품요약 업데이트
+            return; 
+        } 
+
+        const totalOrderQtyVal = parseFloat(stripCommas(totalQtyInput.value));
+        const labelsPerSheetVal = parseFloat(labelsPerSheetInput.value); 
+        const sheetsPerBundleVal = parseFloat(sheetsPerBundleInput.value);
+
+        let calculatedTotalSheets = 0;
+        let calculatedLabelsOnLastSheet = 0;
+        let calculatedTotalBundles = 0;
+        let calculatedLeftoverSheets = 0;
+        let calculatedActualDeliveryQty = 0;
+
+        if (!isNaN(totalOrderQtyVal) && totalOrderQtyVal > 0 && !isNaN(labelsPerSheetVal) && labelsPerSheetVal > 0) {
+            calculatedTotalSheets = Math.ceil(totalOrderQtyVal / labelsPerSheetVal);
+            let remainderLabels = totalOrderQtyVal % labelsPerSheetVal;
+            calculatedLabelsOnLastSheet = (remainderLabels === 0 && totalOrderQtyVal > 0) ? labelsPerSheetVal : remainderLabels;
+            if (totalOrderQtyVal === 0 || labelsPerSheetVal === 0) calculatedLabelsOnLastSheet = 0;
+            
+            calculatedActualDeliveryQty = calculatedTotalSheets * labelsPerSheetVal; 
+
+            if (!isNaN(sheetsPerBundleVal) && sheetsPerBundleVal > 0 && calculatedTotalSheets > 0) {
+                calculatedTotalBundles = Math.floor(calculatedTotalSheets / sheetsPerBundleVal);
+                calculatedLeftoverSheets = calculatedTotalSheets % sheetsPerBundleVal;
+            }
+        }
+        totalSheetsNeededSpan.textContent = formatNumberWithCommas(calculatedTotalSheets.toString());
+        labelsOnLastSheetSpan.textContent = formatNumberWithCommas(calculatedLabelsOnLastSheet.toString());
+        totalBundlesDispSpan.textContent = formatNumberWithCommas(calculatedTotalBundles.toString());
+        leftoverSheetsForBundleDispSpan.textContent = formatNumberWithCommas(calculatedLeftoverSheets.toString());
+        actualDeliveryQtyForSheetsSpan.textContent = formatNumberWithCommas(calculatedActualDeliveryQty.toString());
+        updateProductSummary(); // 제품요약 업데이트
+    }
+    
+    function calculateAndDisplayRollInfo() {
+        if (!rollSpecificCalculationsDiv || 
+            !totalQtyInput || !packagingUnitQtyInput || 
+            !labelsOnLastRollDispSpan || !totalPhysicalRollsDispSpan || !actualDeliveryQtyForRollsSpan ) {
+            
+            if(labelsOnLastRollDispSpan) labelsOnLastRollDispSpan.textContent = '0';
+            if(totalPhysicalRollsDispSpan) totalPhysicalRollsDispSpan.textContent = '0';
+            if(actualDeliveryQtyForRollsSpan) actualDeliveryQtyForRollsSpan.textContent = '0';
+            updateProductSummary(); // 제품요약 업데이트
+            return;
+        }
+         if (rollSpecificCalculationsDiv.style.display === 'none') { 
+            updateProductSummary(); // 제품요약 업데이트
+            return; 
+         } 
+
+
+        const totalQty = parseFloat(stripCommas(totalQtyInput.value));
+        const sheetsPerRoll = parseFloat(stripCommas(packagingUnitQtyInput.value));
+
+        if (!isNaN(totalQty) && totalQty > 0 && !isNaN(sheetsPerRoll) && sheetsPerRoll > 0) {
+            let labelsLastRoll = totalQty % sheetsPerRoll;
+            const physicalRolls = Math.ceil(totalQty / sheetsPerRoll);
+            
+            if (labelsLastRoll === 0 && totalQty > 0) { 
+                 labelsLastRoll = sheetsPerRoll;
+            }
+            
+            const actualDeliveryQty = physicalRolls * sheetsPerRoll;
+
+            labelsOnLastRollDispSpan.textContent = formatNumberWithCommas(labelsLastRoll.toString());
+            totalPhysicalRollsDispSpan.textContent = formatNumberWithCommas(physicalRolls.toString());
+            actualDeliveryQtyForRollsSpan.textContent = formatNumberWithCommas(actualDeliveryQty.toString());
+        } else {
+            labelsOnLastRollDispSpan.textContent = '0';
+            totalPhysicalRollsDispSpan.textContent = '0';
+            actualDeliveryQtyForRollsSpan.textContent = '0';
+        }
+        updateProductSummary(); // 제품요약 업데이트
+    }
+
+    packagingMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const isRoll = this.id === 'pack_roll_radio' && this.checked;
+            const isSheet = this.id === 'pack_sheet_radio' && this.checked;
+
+            if(packagingUnitFormGroup) packagingUnitFormGroup.style.display = isSheet ? 'none' : 'flex';
+
+            if(packagingUnitLabel) packagingUnitLabel.textContent = isRoll ? '포장 단위 (롤당 매수)' : '포장 단위';
+            if(packagingUnitQtyLabelSuffix) packagingUnitQtyLabelSuffix.textContent = isRoll ? '매' : 'EA';
+            
+            if(sheetSpecificOptionsDiv) sheetSpecificOptionsDiv.style.display = isSheet ? 'block' : 'none';
+            if(rollSpecificCalculationsDiv) rollSpecificCalculationsDiv.style.display = isRoll ? 'block' : 'none';
+
+            if (isSheet) {
+                calculateAndDisplaySheetBundleInfo();
+            } else if (isRoll) {
+                calculateAndDisplayRollInfo();
+            } else { 
+                 if(sheetSpecificOptionsDiv) sheetSpecificOptionsDiv.style.display = 'none';
+                 if(rollSpecificCalculationsDiv) rollSpecificCalculationsDiv.style.display = 'none';
+            }
+            updateProductSummary(); // 제품요약 업데이트
+        });
+    });
+
+    if (labelsPerSheetInput) { 
+        labelsPerSheetInput.addEventListener('input', calculateAndDisplaySheetBundleInfo);
+    }
+    if (sheetsPerBundleInput) {
+        sheetsPerBundleInput.addEventListener('input', calculateAndDisplaySheetBundleInfo);
+    }
+    if (packagingUnitQtyInput) { 
+        packagingUnitQtyInput.addEventListener('input', function(){
+            if(packRollRadio && packRollRadio.checked) {
+                calculateAndDisplayRollInfo();
+            }
+        });
+    }
+    
+    const initiallyCheckedPackagingMethod = document.querySelector('input[name="packaging_method"]:checked');
+    if (initiallyCheckedPackagingMethod) {
+        initiallyCheckedPackagingMethod.dispatchEvent(new Event('change'));
+    }
+
+    // --- 거래 조건 '기타' 입력칸 토글 ---
+    function setupRadioOtherTextToggle(radioGroupName, otherRadioId, textInputId, otherFormGroupId) {
+        const otherRadio = document.getElementById(otherRadioId);
+        const textInput = document.getElementById(textInputId);
+        const otherFormGroup = document.getElementById(otherFormGroupId);
+        const radiosInGroup = document.querySelectorAll(`input[name="${radioGroupName}"]`);
+
+        if (!otherRadio || !textInput || !otherFormGroup || !radiosInGroup) return;
+
+        const toggleFunc = () => {
+            if (otherRadio.checked) {
+                otherFormGroup.style.display = 'flex';
+                textInput.disabled = false;
+            } else {
+                otherFormGroup.style.display = 'none';
+                textInput.disabled = true;
+                textInput.value = '';
+            }
+            updateProductSummary(); // 제품요약 업데이트
+        };
+        radiosInGroup.forEach(radio => radio.addEventListener('change', toggleFunc));
+        toggleFunc(); 
+    }
+    setupRadioOtherTextToggle('paymentMethod', 'paymentOtherMethod', 'paymentOtherMethodText', 'paymentOtherMethodGroup');
+    setupRadioOtherTextToggle('paymentTerm', 'paymentOtherTerm', 'paymentOtherTermText', 'paymentOtherTermGroup');
+
+    // --- 수량별 단가 요청 토글 ---
+    const requestTieredPricingCheckbox = document.getElementById('requestTieredPricing');
+    const tieredPricingOptionsDiv = document.getElementById('tieredPricingOptions'); 
+    const numPriceTiersSelect = document.getElementById('numPriceTiers');
+    const priceTierDetailsContainer = document.getElementById('priceTierDetailsContainer');
+
+    function generatePriceTierInputs(count) {
+        if (!priceTierDetailsContainer) return;
+        priceTierDetailsContainer.innerHTML = '';
+        if (requestTieredPricingCheckbox && requestTieredPricingCheckbox.checked && count > 0) {
+            for (let i = 1; i <= count; i++) {
+                const tierGroup = document.createElement('div');
+                tierGroup.classList.add('form-group');
+                tierGroup.style.marginLeft = "0px"; 
+                tierGroup.style.alignItems = 'center';
+
+                const label = document.createElement('label');
+                label.style.width = 'auto'; 
+                label.style.marginRight = '5px';
+                label.htmlFor = `tier${i}Qty`; 
+                label.textContent = `수량${i}. :`; // '매'를 텍스트에서 분리
+
+                const input = document.createElement('input');
+                input.type = 'text'; 
+                input.inputMode = 'numeric';
+                input.id = `tier${i}Qty`;
+                input.name = `tier${i}Qty`;
+                input.placeholder = '0';
+                input.addEventListener('input', updateProductSummary); // 제품요약 업데이트
+                
+                const unitLabel = document.createElement('span');
+                unitLabel.classList.add('unit-label');
+                unitLabel.textContent = '매 이상'; // '매 이상'을 별도의 span으로 표시
+                
+                applyThousandSeparatorListener(input); 
+
+                tierGroup.appendChild(label);
+                tierGroup.appendChild(input);
+                tierGroup.appendChild(unitLabel);
+                priceTierDetailsContainer.appendChild(tierGroup);
+            }
+        }
+        updateProductSummary(); // 제품요약 업데이트
+    }
+
+    if (requestTieredPricingCheckbox && tieredPricingOptionsDiv && numPriceTiersSelect) { 
+        requestTieredPricingCheckbox.addEventListener('change', function() {
+            tieredPricingOptionsDiv.style.display = this.checked ? 'block' : 'none'; 
+            if (this.checked) {
+                generatePriceTierInputs(parseInt(numPriceTiersSelect.value, 10));
+            } else {
+                if(priceTierDetailsContainer) priceTierDetailsContainer.innerHTML = ''; 
+            }
+            updateProductSummary(); // 제품요약 업데이트
+        });
+        numPriceTiersSelect.addEventListener('change', function() {
+            generatePriceTierInputs(parseInt(this.value, 10));
+        });
+
+        tieredPricingOptionsDiv.style.display = requestTieredPricingCheckbox.checked ? 'block' : 'none'; 
+        if (requestTieredPricingCheckbox.checked) {
+            generatePriceTierInputs(parseInt(numPriceTiersSelect.value, 10));
+        }
+    }
+
+    // --- 배송 시 필수서류 업데이트 로직 ---
+    function updateRequiredDocuments() {
+        const docListElement = document.getElementById('docList');
+        const requiredDocumentsDisplay = document.getElementById('requiredDocumentsDisplay');
+        let requiredDocs = [];
+
+        // 품질인증서
+        if (document.getElementById('cert_needed')?.checked) {
+            requiredDocs.push('품질인증서');
+        }
+
+        // 검사성적서
+        if (document.getElementById('test_report_needed')?.checked) {
+            requiredDocs.push('검사성적서');
+        }
+
+        // 원자재 관련 자료
+        if (document.getElementById('rawMaterialMSDS')?.checked) {
+            requiredDocs.push('MSDS');
+        }
+        if (document.getElementById('rawMaterialTDS')?.checked) {
+            requiredDocs.push('TDS');
+        }
+        const rawMaterialOtherText = document.getElementById('rawMaterialOtherText')?.value.trim();
+        if (document.getElementById('rawMaterialOtherChk')?.checked && rawMaterialOtherText) {
+            requiredDocs.push(`기타 원자재 자료(${rawMaterialOtherText})`);
+        } else if (document.getElementById('rawMaterialOtherChk')?.checked && !rawMaterialOtherText) {
+             requiredDocs.push('기타 원자재 자료(내용 입력 필요)');
+        }
+
+        // 기타 품질요구사항
+        const otherQualityRequirementsText = document.getElementById('otherQualityRequirements')?.value.trim();
+        if (otherQualityRequirementsText) {
+            requiredDocs.push(`기타 품질요구사항(${otherQualityRequirementsText})`);
+        }
+        
+        // 색차 기준은 이제 배송 시 필수서류에 포함되지 않음.
+
+        if (requiredDocs.length > 0) {
+            docListElement.innerHTML = requiredDocs.map(doc => `<span class="checkbox-group" style="pointer-events: none;"><input type="checkbox" checked disabled/>${doc}</span>`).join('');
+            requiredDocumentsDisplay.style.display = 'flex';
+        } else {
+            requiredDocumentsDisplay.style.display = 'none';
+            docListElement.innerHTML = '';
+        }
+    }
+
+    // --- 제품요약 업데이트 로직 (3~6번 섹션만) ---
+    function updateProductSummary() {
+        const summaryList = document.getElementById('summaryList');
+        const productSummarySection = document.getElementById('productSummarySection'); // 추가: 제품요약 섹션 자체
+
+        if (!summaryList || !productSummarySection) return;
+
+        let summaryItems = [];
+
+        // 3. 라벨 기본 사양
+        const labelTypes = Array.from(document.querySelectorAll('.section:nth-of-type(3) .section-content .checkbox-group input[type="checkbox"]:checked'))
+                               .map(input => input.dataset.summaryLabel || input.nextElementSibling?.textContent?.trim() || input.value);
+        const otherLabelType = document.getElementById('s3_label_other_txt')?.value;
+        if (document.getElementById('s3_label_other_chk')?.checked && otherLabelType) {
+            labelTypes.push(`기타: ${otherLabelType}`);
+        } else if (document.getElementById('s3_label_other_chk')?.checked && !otherLabelType) {
+            labelTypes.push(`기타: (내용 입력 필요)`);
+        }
+
+        if (labelTypes.length > 0) summaryItems.push(`<li><strong>라벨 종류:</strong> ${labelTypes.join(', ')}</li>`);
+
+        const itemName = document.getElementById('item_name')?.value.trim();
+        if (itemName) summaryItems.push(`<li><strong>품목명/품번:</strong> ${itemName}</li>`);
+
+        const usage = document.getElementById('usage_purpose')?.value.trim();
+        if (usage) summaryItems.push(`<li><strong>사용 용도:</strong> ${usage}</li>`);
+
+        const adhesionSurface = document.getElementById('adhesion_surface')?.value.trim();
+        if (adhesionSurface) summaryItems.push(`<li><strong>피착면:</strong> ${adhesionSurface}</li>`);
+        
+        const environments = Array.from(document.querySelectorAll('.section:nth-of-type(3) .section-content .form-group:nth-of-type(7) .checkbox-group input[type="checkbox"]:checked'))
+                               .map(input => input.dataset.summaryLabel || input.nextElementSibling?.textContent?.trim() || input.value);
+        if (environments.length > 0) summaryItems.push(`<li><strong>사용 환경:</strong> ${environments.join(', ')}</li>`);
+
+        const sizeWidth = document.getElementById('size_width')?.value.trim();
+        const sizeHeight = document.getElementById('size_height')?.value.trim();
+        if (sizeWidth && sizeHeight) summaryItems.push(`<li><strong>크기:</strong> ${sizeWidth}mm &times; ${sizeHeight}mm</li>`);
+
+        const unwindDirection = document.querySelector('input[name="dir"]:checked')?.value;
+        if (unwindDirection) summaryItems.push(`<li><strong>풀림방향:</strong> ${unwindDirection}</li>`);
+
+        const shape = document.querySelector('input[name="shape"]:checked')?.value;
+        if (shape) summaryItems.push(`<li><strong>형태:</strong> ${shape}</li>`);
+
+        const totalQty = document.getElementById('totalOrderQuantity')?.value.trim();
+        if (totalQty) summaryItems.push(`<li><strong>총 발주수량:</strong> ${totalQty}매</li>`);
+
+
+        // 4. 소재 및 재질 사양
+        const surfaceLayerCount = document.getElementById('surfaceLayerCount')?.value;
+        if (surfaceLayerCount && parseInt(surfaceLayerCount, 10) > 0) {
+            let layerDetails = [`${surfaceLayerCount}층`];
+            for (let i = 1; i <= parseInt(surfaceLayerCount, 10); i++) {
+                const materialSelect = document.getElementById(`surface_material_layer_${i}`);
+                const materialOtherText = document.getElementById(`surface_material_other_layer_${i}_text`);
+                if (materialSelect?.value) {
+                    if (materialSelect.value === 'Other' && materialOtherText?.value) {
+                        layerDetails.push(`${i}층: ${materialOtherText.value}`);
+                    } else if (materialSelect.value !== 'Other' && materialSelect.value !== "") { // 선택 안 됨 방지
+                        layerDetails.push(`${i}층: ${materialSelect.options[materialSelect.selectedIndex].text}`);
+                    }
+                }
+            }
+            if (layerDetails.length > 1) summaryItems.push(`<li><strong>표면재:</strong> ${layerDetails.join(' | ')}</li>`);
+            else if (layerDetails.length === 1 && layerDetails[0] !== "1층") summaryItems.push(`<li><strong>표면재 층수:</strong> ${layerDetails[0]}</li>`);
+        }
+        
+        const thickness = document.getElementById('material_thickness')?.value.trim();
+        if (thickness) summaryItems.push(`<li><strong>두께:</strong> ${thickness}㎛</li>`);
+
+        let color = document.querySelector('input[name="color"]:checked')?.value;
+        const colorOtherText = document.getElementById('materialColorOtherText')?.value.trim();
+        if (document.getElementById('colorOtherRadio')?.checked && colorOtherText) {
+            color = `기타: ${colorOtherText}`;
+        } else if (document.getElementById('colorOtherRadio')?.checked && !colorOtherText) {
+            color = `기타: (내용 입력 필요)`;
+        }
+        if (color) summaryItems.push(`<li><strong>색상:</strong> ${color}</li>`);
+        
+        const adhesives = Array.from(document.querySelectorAll('.section:nth-of-type(4) .section-content .form-group:nth-of-type(5) .checkbox-group input[type="checkbox"]:checked'))
+                               .map(input => input.dataset.summaryLabel || input.nextElementSibling?.textContent?.trim() || input.value);
+        if (adhesives.length > 0) summaryItems.push(`<li><strong>점착제:</strong> ${adhesives.join(', ')}</li>`);
+
+        const liners = Array.from(document.querySelectorAll('.section:nth-of-type(4) .section-content .form-group:nth-of-type(6) .checkbox-group input[type="checkbox"]:checked'))
+                            .map(input => input.dataset.summaryLabel || input.nextElementSibling?.textContent?.trim() || input.value);
+        const otherLiner = document.getElementById('s4_liner_other_txt')?.value;
+        if (document.getElementById('s4_liner_other_chk')?.checked && otherLiner) {
+            liners.push(`기타: ${otherLiner}`);
+        } else if (document.getElementById('s4_liner_other_chk')?.checked && !otherLiner) {
+            liners.push(`기타: (내용 입력 필요)`);
+        }
+        if (liners.length > 0) summaryItems.push(`<li><strong>이형지:</strong> ${liners.join(', ')}</li>`);
+
+
+        // 5. 인쇄 사양
+        const printMethods = Array.from(document.querySelectorAll('.section:nth-of-type(5) .section-content .form-group:nth-of-type(1) .checkbox-group input[type="checkbox"]:checked'))
+                                .map(input => input.dataset.summaryLabel || input.nextElementSibling?.textContent?.trim() || input.value);
+        const otherPrintMethod = document.getElementById('s5_print_other_txt')?.value;
+        if (document.getElementById('s5_print_other_chk')?.checked && otherPrintMethod) {
+            printMethods.push(`기타: ${otherPrintMethod}`);
+        } else if (document.getElementById('s5_print_other_chk')?.checked && !otherPrintMethod) {
+            printMethods.push(`기타: (내용 입력 필요)`);
+        }
+        if (printMethods.length > 0) summaryItems.push(`<li><strong>인쇄 방식:</strong> ${printMethods.join(', ')}</li>`);
+
+        let printColors = [];
+        if (document.getElementById('cmykCheck')?.checked) printColors.push('CMYK');
+        if (document.getElementById('spotCheck')?.checked) {
+            const spotCount = document.getElementById('spotCount')?.value;
+            if (spotCount && parseInt(spotCount, 10) > 0) {
+                printColors.push(`별색 (${spotCount}색)`);
+                const pantoneInputs = document.querySelectorAll('.pantone-number-input');
+                const pantoneNumbers = Array.from(pantoneInputs).map(input => input.value.trim()).filter(val => val !== '');
+                if (pantoneNumbers.length > 0) printColors.push(`Pantone: ${pantoneNumbers.join(', ')}`);
+                else if (parseInt(spotCount, 10) > 0) printColors.push(`Pantone: (색상 입력 필요)`);
+            } else {
+                printColors.push('별색');
+            }
+        }
+        if (document.getElementById('iMarkCheck')?.checked) printColors.push('I마크');
+        const printColorOther = document.getElementById('printColorOtherTxt')?.value;
+        if (document.getElementById('printColorOtherChk')?.checked && printColorOther) {
+            printColors.push(`기타: ${printColorOther}`);
+        } else if (document.getElementById('printColorOtherChk')?.checked && !printColorOther) {
+            printColors.push(`기타: (내용 입력 필요)`);
+        }
+        if (printColors.length > 0) summaryItems.push(`<li><strong>인쇄 색수:</strong> ${printColors.join(', ')}</li>`);
+
+        let specialPrinting = [];
+        if (document.getElementById('hotFoil')?.checked) {
+            const hotFoilInput = document.getElementById('hotFoilInput')?.value.trim();
+            specialPrinting.push(`열박(HOT-FOIL)${hotFoilInput ? `(${hotFoilInput})` : ''}`);
+        }
+        if (document.getElementById('coldFoil')?.checked) {
+            const coldFoilInput = document.getElementById('coldFoilInput')?.value.trim();
+            specialPrinting.push(`콜드박(COLD-FOIL)${coldFoilInput ? `(${coldFoilInput})` : ''}`);
+        }
+        if (specialPrinting.length > 0) summaryItems.push(`<li><strong>특수 인쇄:</strong> ${specialPrinting.join(', ')}</li>`);
+
+
+        // 6. 가공 및 후처리
+        let processing = [];
+        const uvGlossChecked = document.getElementById('uvGloss')?.checked;
+        const uvMatteChecked = document.getElementById('uvMatte')?.checked;
+        if (uvGlossChecked) processing.push('유광 UV코팅');
+        if (uvMatteChecked) processing.push('무광 UV코팅');
+
+        const lamGlossChecked = document.getElementById('laminateGloss')?.checked;
+        const lamMatteChecked = document.getElementById('laminateMatte')?.checked;
+        const fullLamChecked = document.querySelector('.section:nth-of-type(6) .section-content .form-group:nth-of-type(4) .checkbox-group:nth-of-type(3) input')?.checked;
+        if (lamGlossChecked) processing.push('유광 라미네이팅');
+        if (lamMatteChecked) processing.push('무광 라미네이팅');
+        if (fullLamChecked) processing.push('풀라미');
+
+        const otherProcessing = document.getElementById('other_processing')?.value.trim();
+        if (otherProcessing) processing.push(`기타 가공: ${otherProcessing}`);
+        
+        const dieCut = document.querySelector('input[name="dieCut"]:checked')?.value;
+        if (dieCut) processing.push(`다이커팅: ${dieCut}`);
+
+        const cuttingPrecision = document.getElementById('cutting_precision')?.value.trim();
+        if (cuttingPrecision) processing.push(`커팅 정밀도: ${cuttingPrecision}mm`);
+
+        if (processing.length > 0) summaryItems.push(`<li><strong>가공 및 후처리:</strong> ${processing.join(' | ')}</li>`);
+        
+        // 최종 요약 내용이 있을 경우에만 섹션 표시
+        if (summaryItems.length > 0) {
+            summaryList.innerHTML = summaryItems.join('');
+            productSummarySection.style.display = 'block';
+        } else {
+            summaryList.innerHTML = ''; // 내용이 없으면 목록도 비워둡니다.
+            productSummarySection.style.display = 'none';
+        }
+    }
+
+    // 모든 입력 필드 및 체크박스에 change/input 이벤트 리스너 추가 (제품요약 업데이트 위함)
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+        // 모든 필드에 대한 기본 이벤트 리스너 추가 (input 및 change)
+        if (element.type === 'radio' || element.type === 'checkbox' || element.tagName === 'SELECT') {
+            element.addEventListener('change', updateProductSummary);
+        } else { // text, number, date, tel, email, textarea 등
+            element.addEventListener('input', updateProductSummary);
+            if (element.type === 'date') { // date input의 change 이벤트도 추가 (input 이벤트만으로는 충분하지 않을 수 있음)
+                element.addEventListener('change', updateProductSummary);
+            }
+        }
+    });
+
+    // 초기 로드 시 모든 필수 함수 실행
+    updateRequiredDocuments();
+    updateProductSummary(); // 제품요약 초기화
+});
+</script>
+</body>
+</html>

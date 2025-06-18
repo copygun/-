@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark mode globals */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: hsl(222.2, 84%, 4.9%);
+  color: hsl(210, 40%, 98%);
+}
+
+:root {
+  --background: hsl(222.2, 84%, 4.9%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217.2, 32.6%, 17.5%);
+  --muted-foreground: hsl(215, 20.2%, 65.1%);
+  --popover: hsl(222.2, 84%, 4.9%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222.2, 84%, 4.9%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217.2, 32.6%, 17.5%);
+  --input: hsl(217.2, 32.6%, 17.5%);
+  --primary: hsl(210, 40%, 98%);
+  --primary-foreground: hsl(222.2, 84%, 4.9%);
+  --secondary: hsl(217.2, 32.6%, 17.5%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(217.2, 32.6%, 17.5%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(212.7, 26.8%, 83.9%);
+  --radius: 0.75rem;
+
+  /* Custom colors for dark mode */
+  --primary-50: hsl(220, 70%, 10%);
+  --primary-100: hsl(220, 70%, 15%);
+  --primary-500: hsl(220, 70%, 50%);
+  --primary-600: hsl(220, 70%, 45%);
+  --primary-700: hsl(220, 70%, 40%);
+  
+  --gray-50: hsl(0, 0%, 5%);
+  --gray-100: hsl(217.2, 32.6%, 17.5%);
+  --gray-200: hsl(215, 20.2%, 25%);
+  --gray-300: hsl(215, 20.2%, 35%);
+  --gray-400: hsl(215, 20.2%, 45%);
+  --gray-500: hsl(215, 20.2%, 55%);
+  --gray-600: hsl(215, 20.2%, 65%);
+  --gray-700: hsl(210, 40%, 75%);
+  --gray-800: hsl(210, 40%, 85%);
+  --gray-900: hsl(210, 40%, 95%);
+}
+
+.dark {
+  --background: hsl(210, 15%, 6%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(210, 15%, 12%);
+  --muted-foreground: hsl(210, 8%, 64%);
+  --popover: hsl(210, 15%, 6%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(210, 15%, 6%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(210, 15%, 12%);
+  --input: hsl(210, 15%, 12%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(210, 15%, 12%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(210, 15%, 12%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(207, 90%, 54%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-noto bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-inter;
+  }
+}
+
+@layer utilities {
+  .font-noto {
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .text-primary-custom {
+    color: var(--primary-500);
+  }
+  
+  .bg-primary-custom {
+    background-color: var(--primary-500);
+  }
+  
+  .hover\:bg-primary-custom:hover {
+    background-color: var(--primary-600);
+  }
+  
+  .bg-primary-50-custom {
+    background-color: var(--primary-50);
+  }
+  
+  .bg-primary-100-custom {
+    background-color: var(--primary-100);
+  }
+  
+  .text-primary-600-custom {
+    color: var(--primary-600);
+  }
+  
+  .text-primary-700-custom {
+    color: var(--primary-700);
+  }
+}
